@@ -28,33 +28,30 @@ func (t *Torrent) AfterFind(_ *gorm.DB) error {
 	return nil
 }
 
-// Seeders returns the highest number of seeders from all sources
-// todo: Add up bloom filters
+// Seeders returns the aggregate number of seeders across all sources.
+// Different sources (DHT, trackers, imports) observe independent peer sets,
+// so summing gives a more accurate estimate than taking the max alone.
 func (t Torrent) Seeders() NullUint {
 	seeders := NullUint{}
 
 	for _, source := range t.Sources {
 		if source.Seeders.Valid {
 			seeders.Valid = true
-			if source.Seeders.Uint > seeders.Uint {
-				seeders.Uint = source.Seeders.Uint
-			}
+			seeders.Uint += source.Seeders.Uint
 		}
 	}
 
 	return seeders
 }
 
-// Leechers returns the highest number of leechers from all sources
+// Leechers returns the aggregate number of leechers across all sources.
 func (t Torrent) Leechers() NullUint {
 	leechers := NullUint{}
 
 	for _, source := range t.Sources {
 		if source.Leechers.Valid {
 			leechers.Valid = true
-			if source.Leechers.Uint > leechers.Uint {
-				leechers.Uint = source.Leechers.Uint
-			}
+			leechers.Uint += source.Leechers.Uint
 		}
 	}
 
