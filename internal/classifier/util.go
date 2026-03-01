@@ -6,10 +6,25 @@ import (
 	"github.com/mozillazg/go-unidecode"
 )
 
-const levenshteinThreshold = 5
+// levenshteinMaxThreshold scales the acceptable edit distance with the target
+// title length: 15% of the normalized title length, clamped to [2, 8].
+// Short titles (e.g. "Her") get a tight threshold of 2, while long titles
+// (e.g. "The Lord of the Rings: The Return of the King") get up to 8.
+func levenshteinMaxThreshold(target string) int {
+	n := len(levenshteinNormalizeString(target))
+	t := n * 15 / 100
+	if t < 2 {
+		return 2
+	}
+	if t > 8 {
+		return 8
+	}
+	return t
+}
 
 func levenshteinFindBestMatch[T any](target string, items []T, getCandidates func(T) []string) (t T, ok bool) {
-	minDistance := levenshteinThreshold + 1
+	threshold := levenshteinMaxThreshold(target)
+	minDistance := threshold + 1
 	bestMatch := -1
 
 	for i, item := range items {
