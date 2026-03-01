@@ -12,12 +12,15 @@ RUN go mod download
 
 COPY . ./
 
+# Ensure any dependencies added to source but not yet in go.mod/go.sum are resolved
+RUN go mod tidy
+
 ARG VERSION=dev
 ARG REVISION=dev
 ARG BUILDTIME
 ARG TARGETOS TARGETARCH TARGETVARIANT
 
-RUN --network=none --mount=target=. \
+RUN --network=none \
 export GOOS=$TARGETOS; \
 export GOARCH=$TARGETARCH; \
 [[ "$GOARCH" == "amd64" ]] && export GOAMD64=$TARGETVARIANT; \
