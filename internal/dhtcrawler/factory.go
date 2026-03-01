@@ -16,7 +16,6 @@ import (
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol/metainfo/metainforequester"
 	"github.com/bitmagnet-io/bitmagnet/internal/worker"
 	"github.com/prometheus/client_golang/prometheus"
-	boom "github.com/tylertreat/BoomFilters"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -117,9 +116,7 @@ func New(params Params) Result {
 						savePieces:         params.Config.SavePieces,
 						rescrapeThreshold:  params.Config.RescrapeThreshold,
 						dao:                query,
-						ignoreHashes: &ignoreHashes{
-							bloom: boom.NewStableBloomFilter(10_000_000, 2, 0.001),
-						},
+						ignoreHashes: newIgnoreHashes(10_000_000, 0.001),
 						blockingManager: blockingManager,
 						soughtNodeID:    &concurrency.AtomicValue[protocol.ID]{},
 						stopped:         make(chan struct{}),

@@ -102,15 +102,36 @@ type infoHashWithScrape struct {
 }
 
 type ignoreHashes struct {
-	mutex sync.Mutex
-	bloom *boom.StableBloomFilter
+	mutex    sync.Mutex
+	bloom    *boom.StableBloomFilter
+	count    uint64
+	capacity uint64
+}
+
+func newIgnoreHashes(capacity uint64, fpRate float64) *ignoreHashes {
+	return &ignoreHashes{
+		bloom:    boom.NewStableBloomFilter(uint(capacity), 2, fpRate),
+		capacity: capacity,
+	}
 }
 
 func (i *ignoreHashes) testAndAdd(id protocol.ID) bool {
 	i.mutex.Lock()
 	defer i.mutex.Unlock()
 
-	return i.bloom.TestAndAdd(id[:])
+	if i.bloom.TestAndAdd(id[:]) {
+		return true
+	}
+
+	i.count++
+	// When we've inserted roughly as many items as the capacity,
+	// reset the filter to restore the target false positive rate.
+	if i.count >= i.capacity {
+		i.bloom.Reset()
+		i.count = 0
+	}
+
+	return false
 }
 
 func (c *crawler) rotateSoughtNodeID(ctx context.Context) {
