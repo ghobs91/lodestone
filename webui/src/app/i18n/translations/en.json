@@ -12,6 +12,35 @@
     },
     "save": "Save settings"
   },
+  "settings": {
+    "theme": {
+      "title": "Theme",
+      "description": "Choose a visual theme for the interface.",
+      "auto": "Auto (system)"
+    },
+    "order_by": {
+      "title": "Default Sort Order",
+      "description": "Set the default sort order used when browsing torrents. This preference is remembered across sessions.",
+      "field": "Sort by",
+      "default": "Default (Published at)",
+      "descending": "Descending",
+      "save": "Save",
+      "reset": "Reset to default"
+    },
+    "tmdb": {
+      "title": "TMDB API Key",
+      "description": "Provide your own TMDB API key for better rate limits and reliability. Get one free at themoviedb.org.",
+      "api_key_label": "API Key",
+      "api_key_hint": "Leave empty to use the default shared key (rate-limited).",
+      "save": "Save API key"
+    },
+    "import": {
+      "title": "Import SQLite Backup",
+      "description": "Import torrents from a SQLite backup file (e.g. RARBG database). The file will be processed on the server — torrents will be extracted, imported, and queued for classification automatically.",
+      "choose_file": "Choose SQLite file",
+      "start": "Start import"
+    }
+  },
   "content_types": {
     "plural": {
       "all": "All",
@@ -244,6 +273,7 @@
     "home": "Home",
     "jobs": "Jobs",
     "queues": "Queues",
+    "settings": "Settings",
     "torrents": "Torrents",
     "visualize": "Visualize"
   },

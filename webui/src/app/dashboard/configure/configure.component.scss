@@ -1,3 +1,7 @@
+.settings-card {
+  margin-bottom: 16px;
+}
+
 section.settings-section {
   padding: 16px 0;
 
@@ -5,6 +9,9 @@ section.settings-section {
     margin: 0 0 4px;
     font-size: 1rem;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .section-description {
@@ -31,6 +38,13 @@ section.settings-section {
   max-width: 600px;
 }
 
+.api-key-field {
+  width: 100%;
+  max-width: 500px;
+  display: block;
+  margin-bottom: 8px;
+}
+
 .actions {
   margin-top: 24px;
 
@@ -39,4 +53,66 @@ section.settings-section {
     vertical-align: middle;
     margin-right: 8px;
   }
+}
+
+.actions-inline {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.theme-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .active-theme {
+    border-color: var(--mat-sys-primary, #6750a4);
+    color: var(--mat-sys-primary, #6750a4);
+    font-weight: 500;
+  }
+}
+
+.order-by-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.import-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .file-input {
+    display: none;
+  }
+
+  .import-button {
+    .spinner-inline {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+  }
+}
+
+.import-progress {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--mat-sys-surface-variant, rgba(0, 0, 0, 0.04));
+  border-radius: 8px;
+  font-size: 0.875rem;
 }

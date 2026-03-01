@@ -235,7 +235,8 @@
     "queues": "कतारें",
     "torrents": "टोरेंट्स",
     "visualize": "दृश्य करें",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "वर्गीकरण",

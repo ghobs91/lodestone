@@ -235,7 +235,8 @@
     "queues": "Colas",
     "torrents": "Torrents",
     "visualize": "Visualizar",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "Clasificación",

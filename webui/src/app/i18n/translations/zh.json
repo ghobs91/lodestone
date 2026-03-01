@@ -235,7 +235,8 @@
     "queues": "队列",
     "torrents": "种子",
     "visualize": "可视化",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "分类",

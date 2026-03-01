@@ -1,15 +1,92 @@
 <ng-container *transloco="let t">
   <app-document-title
-    [parts]="[t('routes.configure'), t('routes.dashboard')]"
+    [parts]="[t('routes.settings'), t('routes.dashboard')]"
   />
-  <mat-card>
+
+  <!-- Theme Settings -->
+  <mat-card class="settings-card">
+    <mat-card-content>
+      <section class="settings-section">
+        <h3>
+          <mat-icon>apparel</mat-icon>
+          {{ t("settings.theme.title") }}
+        </h3>
+        <p class="section-description">{{ t("settings.theme.description") }}</p>
+        <div class="theme-grid">
+          @for (th of themeManager.themes; track th.key) {
+            <button
+              mat-stroked-button
+              (click)="themeManager.setTheme(th.key)"
+              [class.active-theme]="th.key === themeManager.selectedTheme"
+            >
+              <mat-icon>{{ th.dark ? "dark_mode" : "light_mode" }}</mat-icon>
+              {{ th.label }}
+            </button>
+          }
+          <button
+            mat-stroked-button
+            (click)="themeManager.setTheme('auto')"
+            [class.active-theme]="!themeManager.selectedTheme"
+          >
+            <mat-icon>brightness_auto</mat-icon>
+            {{ t("settings.theme.auto") }}
+          </button>
+        </div>
+      </section>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Default Sort Order -->
+  <mat-card class="settings-card">
+    <mat-card-content>
+      <section class="settings-section">
+        <h3>
+          <mat-icon>sort</mat-icon>
+          {{ t("settings.order_by.title") }}
+        </h3>
+        <p class="section-description">
+          {{ t("settings.order_by.description") }}
+        </p>
+        <div class="order-by-row">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t("settings.order_by.field") }}</mat-label>
+            <mat-select [formControl]="orderByField">
+              <mat-option value="">{{ t("settings.order_by.default") }}</mat-option>
+              @for (opt of orderByOptions; track opt.field) {
+                <mat-option [value]="opt.field">
+                  {{ t("torrents.ordering." + opt.field) }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-checkbox [formControl]="orderByDesc">
+            {{ t("settings.order_by.descending") }}
+          </mat-checkbox>
+        </div>
+        <div class="actions-inline">
+          <button mat-raised-button color="primary" (click)="saveOrderByPreference()">
+            {{ t("settings.order_by.save") }}
+          </button>
+          <button mat-button (click)="clearOrderByPreference()">
+            {{ t("settings.order_by.reset") }}
+          </button>
+        </div>
+      </section>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Classifier Settings -->
+  <mat-card class="settings-card">
     <mat-card-content>
       @if (loading()) {
         <mat-progress-bar mode="indeterminate" />
       } @else {
         <form [formGroup]="form" (ngSubmit)="save()">
           <section class="settings-section">
-            <h3>{{ t("configure.classifier.title") }}</h3>
+            <h3>
+              <mat-icon>tune</mat-icon>
+              {{ t("configure.classifier.title") }}
+            </h3>
             <p class="section-description">
               {{ t("configure.classifier.description") }}
             </p>
@@ -78,6 +155,98 @@
           </div>
         </form>
       }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- TMDB API Key -->
+  <mat-card class="settings-card">
+    <mat-card-content>
+      <section class="settings-section">
+        <h3>
+          <mat-icon>movie</mat-icon>
+          {{ t("settings.tmdb.title") }}
+        </h3>
+        <p class="section-description">
+          {{ t("settings.tmdb.description") }}
+        </p>
+        <form [formGroup]="tmdbForm" (ngSubmit)="saveTmdbApiKey()">
+          <mat-form-field appearance="outline" class="api-key-field">
+            <mat-label>{{ t("settings.tmdb.api_key_label") }}</mat-label>
+            <input matInput formControlName="apiKey" type="text" autocomplete="off" />
+            <mat-hint>{{ t("settings.tmdb.api_key_hint") }}</mat-hint>
+          </mat-form-field>
+          <div class="actions">
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="savingTmdb() || tmdbForm.pristine"
+            >
+              @if (savingTmdb()) {
+                <mat-progress-spinner
+                  diameter="20"
+                  mode="indeterminate"
+                  class="spinner-inline"
+                />
+              }
+              {{ t("settings.tmdb.save") }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- SQLite Import -->
+  <mat-card class="settings-card">
+    <mat-card-content>
+      <section class="settings-section">
+        <h3>
+          <mat-icon>upload_file</mat-icon>
+          {{ t("settings.import.title") }}
+        </h3>
+        <p class="section-description">
+          {{ t("settings.import.description") }}
+        </p>
+
+        <div class="import-section">
+          <input
+            type="file"
+            accept=".sqlite,.db,.sqlite3"
+            (change)="onImportFileSelected($event)"
+            #fileInput
+            class="file-input"
+          />
+          <button mat-stroked-button (click)="fileInput.click()" [disabled]="importing()">
+            <mat-icon>attach_file</mat-icon>
+            {{ importFile ? importFile.name : t("settings.import.choose_file") }}
+          </button>
+
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="startImport()"
+            [disabled]="!importFile || importing()"
+            class="import-button"
+          >
+            @if (importing()) {
+              <mat-progress-spinner
+                diameter="20"
+                mode="indeterminate"
+                class="spinner-inline"
+              />
+            }
+            {{ t("settings.import.start") }}
+          </button>
+        </div>
+
+        @if (importProgress()) {
+          <div class="import-progress">
+            <mat-icon>info</mat-icon>
+            <span>{{ importProgress() }}</span>
+          </div>
+        }
+      </section>
     </mat-card-content>
   </mat-card>
 </ng-container>

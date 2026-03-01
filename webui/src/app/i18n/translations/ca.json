@@ -215,7 +215,8 @@
     "queues": "Cues",
     "torrents": "Torrents",
     "visualize": "Visualitza",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "Classificació",

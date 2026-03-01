@@ -131,7 +131,10 @@ export class TorrentsSearchController {
   private selectionSubject: BehaviorSubject<TorrentSelection | undefined>;
   selection$: Observable<TorrentSelection | undefined>;
 
-  constructor(initialControls: TorrentSearchControls) {
+  private fallbackOrderBy: OrderBySelection;
+
+  constructor(initialControls: TorrentSearchControls, fallbackOrderBy?: OrderBySelection) {
+    this.fallbackOrderBy = fallbackOrderBy ?? defaultOrderBy;
     this.controlsSubject = new BehaviorSubject(initialControls);
     this.controls$ = this.controlsSubject.asObservable();
     this.paramsSubject = new BehaviorSubject(
@@ -280,7 +283,7 @@ export class TorrentsSearchController {
           orderBy = defaultQueryOrderBy;
         }
       } else if (orderBy.field === "relevance") {
-        orderBy = defaultOrderBy;
+        orderBy = this.fallbackOrderBy;
       }
       return {
         ...ctrl,
@@ -303,7 +306,7 @@ export class TorrentsSearchController {
       orderBy:
         orderBy.field !== "relevance" || ctrl.queryString
           ? orderBy
-          : defaultOrderBy,
+          : this.fallbackOrderBy,
       page: 1,
     }));
   }

@@ -26,6 +26,7 @@ import { intParam, stringListParam, stringParam } from "../util/query-string";
 import { AppModule } from "../app.module";
 import { DocumentTitleComponent } from "../layout/document-title.component";
 import { IntEstimatePipe } from "../pipes/int-estimate.pipe";
+import { PreferencesService } from "../preferences/preferences.service";
 import { TorrentsBulkActionsComponent } from "./torrents-bulk-actions.component";
 import { contentTypeList, contentTypeMap } from "./content-types";
 import {
@@ -76,6 +77,7 @@ export class TorrentsSearchComponent implements OnInit, OnDestroy {
   private apollo = inject(Apollo);
   private errorsService = inject(ErrorsService);
   private transloco = inject(TranslocoService);
+  private preferences = inject(PreferencesService);
   breakpoints = inject(BreakpointsService);
 
   dataSource: TorrentsSearchDatasource;
@@ -107,7 +109,13 @@ export class TorrentsSearchComponent implements OnInit, OnDestroy {
   private subscriptions = Array<Subscription>();
 
   constructor() {
-    this.controller = new TorrentsSearchController(this.controls);
+    const prefOrderBy = this.preferences.getDefaultOrderBy();
+    const controls: TorrentSearchControls = {
+      ...initControls,
+      orderBy: prefOrderBy ?? defaultOrderBy,
+    };
+    this.controls = controls;
+    this.controller = new TorrentsSearchController(this.controls, prefOrderBy ?? undefined);
     this.dataSource = new TorrentsSearchDatasource(
       this.apollo,
       this.errorsService,
@@ -156,10 +164,11 @@ export class TorrentsSearchComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const prefOrderBy = this.preferences.getDefaultOrderBy();
     this.subscriptions.push(
       this.route.queryParams.subscribe((params) => {
         this.queryString.setValue(stringParam(params, "query") ?? null);
-        this.controller.update(() => paramsToControls(params));
+        this.controller.update(() => paramsToControls(params, prefOrderBy));
       }),
       this.controller.controls$.subscribe((ctrl) => {
         void this.router.navigate([], {
@@ -201,7 +210,7 @@ const initControls: TorrentSearchControls = {
   },
 };
 
-const paramsToControls = (params: Params): TorrentSearchControls => {
+const paramsToControls = (params: Params, prefOrderBy?: OrderBySelection): TorrentSearchControls => {
   const queryString = stringParam(params, "query");
   const activeFacets = stringListParam(params, "facets");
   let selectedTorrent: TorrentSelection | undefined;
@@ -219,7 +228,7 @@ const paramsToControls = (params: Params): TorrentSearchControls => {
   }
   return {
     queryString,
-    orderBy: orderByParam(params, !!queryString),
+    orderBy: orderByParam(params, !!queryString, prefOrderBy),
     contentType: contentTypeParam(params),
     limit: intParam(params, "limit") ?? defaultLimit,
     page: intParam(params, "page") ?? 1,
@@ -271,7 +280,7 @@ const contentTypeParam = (params: Params): ContentTypeSelection => {
   return str && str in contentTypeMap ? (str as ContentTypeSelection) : null;
 };
 
-const orderByParam = (params: Params, hasQuery: boolean): OrderBySelection => {
+const orderByParam = (params: Params, hasQuery: boolean, prefOrderBy?: OrderBySelection): OrderBySelection => {
   let desc: boolean | null = null;
   const strDesc = stringParam(params, "desc");
   if (strDesc === "1") {
@@ -288,8 +297,14 @@ const orderByParam = (params: Params, hasQuery: boolean): OrderBySelection => {
       };
     }
   }
+  if (hasQuery) {
+    return { field: "relevance", descending: desc ?? true };
+  }
+  if (prefOrderBy) {
+    return { ...prefOrderBy, descending: desc ?? prefOrderBy.descending };
+  }
   return {
-    field: hasQuery ? "relevance" : "published_at",
+    field: "published_at",
     descending: desc ?? true,
   };
 };

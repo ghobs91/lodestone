@@ -235,7 +235,8 @@
     "queues": "Warteschlangen",
     "torrents": "Torrents",
     "visualize": "Visualisieren",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "Klassifizierung",

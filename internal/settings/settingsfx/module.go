@@ -15,6 +15,9 @@ func New() fx.Option {
 			func(d lazy.Lazy[*dao.Query]) lazy.Lazy[settings.ClassifierSettingsStore] {
 				return settings.NewClassifierSettingsStore(d)
 			},
+			func(d lazy.Lazy[*dao.Query]) lazy.Lazy[settings.TmdbApiKeySettingsStore] {
+				return settings.NewTmdbApiKeySettingsStore(d)
+			},
 			httphandler.New,
 		),
 	)

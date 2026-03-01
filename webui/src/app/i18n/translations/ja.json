@@ -235,7 +235,8 @@
     "queues": "キュー",
     "torrents": "トレント",
     "visualize": "可視化",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "分類",

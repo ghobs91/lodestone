@@ -235,7 +235,8 @@
     "queues": "Черги",
     "torrents": "Торренти",
     "visualize": "Візуалізувати",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "Класифікація",

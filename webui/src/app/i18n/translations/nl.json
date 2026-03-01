@@ -235,7 +235,8 @@
     "queues": "Wachtrijen",
     "torrents": "Torrents",
     "visualize": "Visualiseren",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "Classificatie",

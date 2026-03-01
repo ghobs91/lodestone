@@ -51,25 +51,6 @@
     <app-health-widget />
     <button
       mat-icon-button
-      aria-label="Theme"
-      [matMenuTriggerFor]="themesMenu"
-      [matTooltip]="t('layout.change_theme')"
-    >
-      <mat-icon>apparel</mat-icon>
-    </button>
-    <mat-menu #themesMenu="matMenu" class="layout-header-menu">
-      @for (th of themeManager.themes; track th.key) {
-        <a
-          mat-menu-item
-          (click)="themeManager.setTheme(th.key)"
-          [class]="th.key === themeManager.selectedTheme ? 'active' : ''"
-          ><mat-icon>{{ th.dark ? "dark_mode" : "light_mode" }}</mat-icon
-          >{{ th.label }}</a
-        >
-      }
-    </mat-menu>
-    <button
-      mat-icon-button
       [matMenuTriggerFor]="languagesMenu"
       [matTooltip]="t('layout.translate')"
     >

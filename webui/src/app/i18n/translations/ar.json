@@ -235,7 +235,8 @@
     "queues": "الطوابير",
     "torrents": "التورنت",
     "visualize": "تصور",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "التصنيف",

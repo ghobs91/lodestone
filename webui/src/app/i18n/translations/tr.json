@@ -235,7 +235,8 @@
     "queues": "Kuyruklar",
     "torrents": "Torrentler",
     "visualize": "Görselleştir",
-    "configure": "Configure"
+    "configure": "Configure",
+    "settings": "Settings"
   },
   "torrents": {
     "classification": "Sınıflandırma",

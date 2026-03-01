@@ -11,6 +11,7 @@ func New() fx.Option {
 		"importer",
 		fx.Provide(
 			httpserver.New,
+			httpserver.NewSqliteImport,
 			importer.New,
 		),
 	)
