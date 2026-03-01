@@ -1,6 +1,6 @@
 ---
 title: Reprocess & Reclassify
-description: Reprocess and reclassify torrents in bitmagnet
+description: Reprocess and reclassify torrents in lodestone
 parent: Guides
 layout: default
 nav_order: 5

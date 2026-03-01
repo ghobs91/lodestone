@@ -1,4 +1,4 @@
-bitmagnet.io/schemas/**/*.*
+lodestone.io/schemas/**/*.*
 webui/dist/**/*.*
 webui/src/app/graphql/generated/**/*.*
 webui/src/app/i18n/translations/*.json

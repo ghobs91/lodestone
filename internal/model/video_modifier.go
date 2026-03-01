@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/keywords"
+	"github.com/ghobs91/lodestone/internal/keywords"
 )
 
 // VideoModifier represents the modifier of a video

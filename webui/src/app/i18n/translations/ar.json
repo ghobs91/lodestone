@@ -117,7 +117,7 @@
     "status": "الحالة"
   },
   "health": {
-    "bitmagnet_is_status": "bitmagnet هو {{status}}",
+    "lodestone_is_status": "lodestone هو {{status}}",
     "check_failed_with_error": "فشل التحقق مع خطأ",
     "component": "مكون",
     "components": {
@@ -210,11 +210,11 @@
     "zu": "الزولو"
   },
   "layout": {
-    "bitmagnet_on_service": "bitmagnet على {{service}}",
+    "lodestone_on_service": "lodestone على {{service}}",
     "change_theme": "تغيير السمة",
     "external_links": "روابط خارجية",
     "sponsor": "الراعي",
-    "support_bitmagnet": "دعم bitmagnet",
+    "support_lodestone": "دعم lodestone",
     "translate": "ترجمة"
   },
   "paginator": {
@@ -311,7 +311,7 @@
     "votes_count_n": "{{count}} أصوات"
   },
   "version": {
-    "bitmagnet_version": "إصدار bitmagnet {{version}}",
+    "lodestone_version": "إصدار lodestone {{version}}",
     "unknown": "غير معروف"
   }
 }

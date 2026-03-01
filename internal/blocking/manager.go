@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/bloom"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/bloom"
+	"github.com/ghobs91/lodestone/internal/protocol"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )

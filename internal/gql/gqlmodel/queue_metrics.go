@@ -3,10 +3,10 @@ package gqlmodel
 import (
 	"context"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
-	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel/gen"
-	"github.com/bitmagnet-io/bitmagnet/internal/metrics/queuemetrics"
-	"github.com/bitmagnet-io/bitmagnet/internal/queue/manager"
+	"github.com/ghobs91/lodestone/internal/database/search"
+	"github.com/ghobs91/lodestone/internal/gql/gqlmodel/gen"
+	"github.com/ghobs91/lodestone/internal/metrics/queuemetrics"
+	"github.com/ghobs91/lodestone/internal/queue/manager"
 )
 
 type QueueQuery struct {

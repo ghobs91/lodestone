@@ -20,7 +20,7 @@ export class DocumentTitleComponent implements OnInit, OnChanges {
 
   private updateTitle() {
     this.title.setTitle(
-      [...this.parts.filter(Boolean), "bitmagnet"].join(" - "),
+      [...this.parts.filter(Boolean), "lodestone"].join(" - "),
     );
   }
 }

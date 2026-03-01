@@ -3,9 +3,9 @@ package classifier
 import (
 	"fmt"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/keywords"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
-	"github.com/bitmagnet-io/bitmagnet/internal/protobuf"
+	"github.com/ghobs91/lodestone/internal/keywords"
+	"github.com/ghobs91/lodestone/internal/model"
+	"github.com/ghobs91/lodestone/internal/protobuf"
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/common/types"
 	"github.com/google/cel-go/ext"
@@ -19,8 +19,8 @@ func celEnvOption(src Source, ctx *compilerContext) error {
 		cel.ExtendedValidations(),
 		ext.Strings(ext.StringsValidateFormatCalls(true)),
 		cel.Types(&protobuf.Torrent{}, &protobuf.Classification{}),
-		cel.Variable("torrent", cel.ObjectType("bitmagnet.Torrent")),
-		cel.Variable("result", cel.ObjectType("bitmagnet.Classification")),
+		cel.Variable("torrent", cel.ObjectType("lodestone.Torrent")),
+		cel.Variable("result", cel.ObjectType("lodestone.Classification")),
 	}
 	// `flags` is masquerading as a map of strings to regexes, but it's actually individual variables defined
 	// with a dot in the name, along with a placeholder map of strings to nulls. This achieves correct compile-time

@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/anacrolix/torrent/bencode"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/responder"
+	"github.com/ghobs91/lodestone/internal/protocol/dht"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/responder"
 	"go.uber.org/zap"
 )
 

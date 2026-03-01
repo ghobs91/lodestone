@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht"
+	"github.com/ghobs91/lodestone/internal/protocol/dht"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

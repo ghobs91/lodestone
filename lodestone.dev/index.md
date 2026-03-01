@@ -4,7 +4,7 @@ layout: default
 nav_order: -1
 ---
 
-# bitmagnet
+# lodestone
 
 **A self-hosted BitTorrent indexer, DHT crawler, content classifier and torrent search engine with web UI, GraphQL API and Servarr stack integration.**
 
@@ -14,22 +14,22 @@ nav_order: -1
 
 > Important
 >
-> This software is currently in alpha. It is ready to preview some interesting and unique features, but there will likely be bugs, as well as API and database schema changes before the (currently theoretical) 1.0 release. If you'd like to support this project and help it gain momentum, please **[give it a star on GitHub](https://github.com/bitmagnet-io/bitmagnet)** or **[sponsor it on OpenCollective](https://opencollective.com/bitmagnet)**.
+> This software is currently in alpha. It is ready to preview some interesting and unique features, but there will likely be bugs, as well as API and database schema changes before the (currently theoretical) 1.0 release. If you'd like to support this project and help it gain momentum, please **[give it a star on GitHub](https://github.com/ghobs91/lodestone)** or **[sponsor it on OpenCollective](https://opencollective.com/lodestone)**.
 
 ## DHT what now...?
 
-The DHT crawler is **bitmagnet**'s killer feature that makes it unique. So what is it?
+The DHT crawler is **lodestone**'s killer feature that makes it unique. So what is it?
 
-You might be aware that you can enable DHT in your BitTorrent client, and that this allows you find peers who are announcing a torrent's hash to a Distributed Hash Table (DHT), rather than to a centralized tracker. DHT's lesser known feature is that it allows you to crawl the info hashes it knows about. This is how **bitmagnet**'s DHT crawler works - it crawls the DHT network, requesting metadata about each info hash it discovers. It then further enriches this metadata by attempting to classify it and associate it with known pieces of content, such as movies and TV shows. It then allows you to search everything it has indexed.
+You might be aware that you can enable DHT in your BitTorrent client, and that this allows you find peers who are announcing a torrent's hash to a Distributed Hash Table (DHT), rather than to a centralized tracker. DHT's lesser known feature is that it allows you to crawl the info hashes it knows about. This is how **lodestone**'s DHT crawler works - it crawls the DHT network, requesting metadata about each info hash it discovers. It then further enriches this metadata by attempting to classify it and associate it with known pieces of content, such as movies and TV shows. It then allows you to search everything it has indexed.
 
-This means that **bitmagnet** is not reliant on any external trackers or torrent indexers. It's a self-contained, self-hosted torrent indexer, connected via DHT to a global network of peers and constantly discovering new content.
+This means that **lodestone** is not reliant on any external trackers or torrent indexers. It's a self-contained, self-hosted torrent indexer, connected via DHT to a global network of peers and constantly discovering new content.
 
 ## Features & Roadmap
 
 ### Currently implemented features
 
 - [x] A DHT crawler and protocol implementation
-- [x] A generic BitTorrent indexer: **bitmagnet** can index torrents from any source, not only the DHT network - currently this is only possible via [the `/import` endpoint](/guides/import.html); more user-friendly methods are in the pipeline, see high-priority features below
+- [x] A generic BitTorrent indexer: **lodestone** can index torrents from any source, not only the DHT network - currently this is only possible via [the `/import` endpoint](/guides/import.html); more user-friendly methods are in the pipeline, see high-priority features below
 - [x] A highly customizable <a href="/guides/classifier.html">content classifier</a> that can currently identify many types of content, along with key related attributes such as language, resolution, source (BluRay, webrip etc.) and enriches this with data from sources including [The Movie Database](https://www.themoviedb.org/)
 - [x] [An import facility for ingesting torrents from any source, for example the RARBG backup](/guides/import.html)
 - [x] A torrent search engine
@@ -42,7 +42,7 @@ This means that **bitmagnet** is not reliant on any external trackers or torrent
 
 - [ ] Authentication, API keys, access levels etc.
 - [ ] Saved searches for content of particular interest, enabling custom feeds in addition to the following feature
-- [ ] Bi-directional integration with the [Prowlarr indexer proxy](https://prowlarr.com/): Currently **bitmagnet** can be added as an indexer in Prowlarr; bi-directional integration would allow **bitmagnet** to crawl content from any indexer configured in Prowlarr, unlocking many new sources of content
+- [ ] Bi-directional integration with the [Prowlarr indexer proxy](https://prowlarr.com/): Currently **lodestone** can be added as an indexer in Prowlarr; bi-directional integration would allow **lodestone** to crawl content from any indexer configured in Prowlarr, unlocking many new sources of content
 
 ### Pipe dream features
 

@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/bitmagnet-io/bitmagnet/internal/metrics/queuemetrics"
-	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/metrics/queuemetrics"
+	"github.com/ghobs91/lodestone/internal/metrics/torrentmetrics"
+	"github.com/ghobs91/lodestone/internal/model"
+	"github.com/ghobs91/lodestone/internal/protocol"
 )
 
 type ContentTypeAgg struct {

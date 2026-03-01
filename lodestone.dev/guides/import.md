@@ -1,6 +1,6 @@
 ---
 title: Import
-description: Importing torrents into bitmagnet
+description: Importing torrents into lodestone
 parent: Guides
 layout: default
 nav_order: 6
@@ -17,11 +17,11 @@ redirect_from:
 >
 > Before continuing with this tutorial, please [obtain and configure a personal TMDB API key, or disable the TMDB API integration]({% link setup/configuration.md %}#obtaining-a-tmdb-api-key).
 
-**bitmagnet** includes an import endpoint at `/import`; this can be used for importing Torrent files from any source.
+**lodestone** includes an import endpoint at `/import`; this can be used for importing Torrent files from any source.
 
 {: .note }
 
-> A proper schema is needed for this endpoint, along with improved input validation. There isn't currently a way to import a torrent along with information about the files it contains (which is optional in **bitmagnet**). If an imported torrent is later discovered by the DHT crawler then its associated file info would be saved at that point.
+> A proper schema is needed for this endpoint, along with improved input validation. There isn't currently a way to import a torrent along with information about the files it contains (which is optional in **lodestone**). If an imported torrent is later discovered by the DHT crawler then its associated file info would be saved at that point.
 
 ## Example: The RARBG backup
 
@@ -36,14 +36,14 @@ For the purposes of this tutorial we'll use the RARBG SQLite backup, but you can
 > - [x] You have [installed the SQLite3 CLI](https://www.tutorialspoint.com/sqlite/sqlite_installation.htm)
 > - [x] You have [installed jq](https://jqlang.github.io/jq/download/)
 
-Let's start by write a SQLite query in a file named `rarbg-import.sql`. This will extract the data we need and get it looking a bit more like the format that **bitmagnet** expects. The following is a starting point, please adapt it to your requirements:
+Let's start by write a SQLite query in a file named `rarbg-import.sql`. This will extract the data we need and get it looking a bit more like the format that **lodestone** expects. The following is a starting point, please adapt it to your requirements:
 
 ```sql
 select
   hash as infoHash,
   title as name,
   size,
--- map the RARBG category to a valid bitmagnet content type:
+-- map the RARBG category to a valid lodestone content type:
   case
     when cat like 'ebooks%' then 'ebook'
     when cat like 'games%' then 'software'
@@ -102,7 +102,7 @@ select
 
 You can try running this query in your favourite database explorer, or using the SQLite3 CLI.
 
-So far we've got the data looking almost like we need it. We now need to make a few final tweaks before piping it into **bitmagnet**'s `/import` endpoint. You'll need to adapt the following command, before either pasting it into your terminal or running it as a bash script:
+So far we've got the data looking almost like we need it. We now need to make a few final tweaks before piping it into **lodestone**'s `/import` endpoint. You'll need to adapt the following command, before either pasting it into your terminal or running it as a bash script:
 
 ```sh
 sqlite3 -json -batch /path/to/your/rarbg_db.sqlite "$(cat rarbg-import.sql)" \
@@ -114,11 +114,11 @@ So what's happening here?
 
 - First we are executing the SQL query we made above against the backup database; we tell SQLite to output the result as JSON. To test this bit in isolation you might try running just `sqlite3 -json -batch /path/to/your/rarbg_db.sqlite "$(cat rarbg-import.sql)"` (while testing you'll probably want to `limit` your results to say 10 or 100)
 - Next we need to make some tweaks to the JSON structure, so we'll pipe the result into [jq](https://jqlang.github.io/jq/). You can add the line beginning `| jq` to the previous part to test what we have so far. Here we will:
-  - Add a `source` field with value `rarbg`: each torrent stored in **bitmagnet** is associated with one or more sources, this association allows filtering by source within the search facility, and can carry some source-specific information such as an import ID, and numbers of seeders and leechers (more docs needed here!)
-  - Add the `contentSource` and `contentId` fields which **bitmagnet** expects, containing the IMDB ID, if it exists; these are not a required field, but if you know the external IMDB or TMDB ID of your content then it will give the classifier an easier job
-  - Delete the `imdb` field which won't be recognised by **bitmagnet**
+  - Add a `source` field with value `rarbg`: each torrent stored in **lodestone** is associated with one or more sources, this association allows filtering by source within the search facility, and can carry some source-specific information such as an import ID, and numbers of seeders and leechers (more docs needed here!)
+  - Add the `contentSource` and `contentId` fields which **lodestone** expects, containing the IMDB ID, if it exists; these are not a required field, but if you know the external IMDB or TMDB ID of your content then it will give the classifier an easier job
+  - Delete the `imdb` field which won't be recognised by **lodestone**
   - Delete any `null` values to reduce the payload size
-- Next we'll pipe the final result to **bitmagnet**'s `/import` endpoint; you'll see feedback as the import progresses; watch out for any errors in the logs!
+- Next we'll pipe the final result to **lodestone**'s `/import` endpoint; you'll see feedback as the import progresses; watch out for any errors in the logs!
 
 Total time for the import will depend on the number of imported records and on your hardware. For me it took about 10 minutes to import 1.5 million records on M2 MacBook Air.
 

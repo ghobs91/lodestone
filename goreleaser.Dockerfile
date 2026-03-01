@@ -1,7 +1,7 @@
 FROM alpine:latest
 
-LABEL org.opencontainers.image.source = "https://github.com/bitmagnet-io/bitmagnet"
+LABEL org.opencontainers.image.source = "https://github.com/ghobs91/lodestone"
 RUN ["apk", "--no-cache", "add", "ca-certificates","curl","iproute2-ss"]
 
-COPY bitmagnet /usr/local/bin/bitmagnet
-ENTRYPOINT ["/usr/local/bin/bitmagnet"]
+COPY lodestone /usr/local/bin/lodestone
+ENTRYPOINT ["/usr/local/bin/lodestone"]

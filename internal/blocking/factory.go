@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/lazy"
+	"github.com/ghobs91/lodestone/internal/protocol"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/fx"
 )

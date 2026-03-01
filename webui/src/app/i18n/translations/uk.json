@@ -117,7 +117,7 @@
     "status": "Статус"
   },
   "health": {
-    "bitmagnet_is_status": "bitmagnet {{status}}",
+    "lodestone_is_status": "lodestone {{status}}",
     "check_failed_with_error": "Перевірка завершилася помилкою",
     "component": "Компонент",
     "components": {
@@ -210,11 +210,11 @@
     "zu": "Зулуська"
   },
   "layout": {
-    "bitmagnet_on_service": "bitmagnet на {{service}}",
+    "lodestone_on_service": "lodestone на {{service}}",
     "change_theme": "Змінити тему",
     "external_links": "Зовнішні посилання",
     "sponsor": "Спонсор",
-    "support_bitmagnet": "Підтримати bitmagnet",
+    "support_lodestone": "Підтримати lodestone",
     "translate": "Перекласти"
   },
   "paginator": {
@@ -311,7 +311,7 @@
     "votes_count_n": "{{count}} голосів"
   },
   "version": {
-    "bitmagnet_version": "Версія bitmagnet {{version}}",
+    "lodestone_version": "Версія lodestone {{version}}",
     "unknown": "невідомо"
   }
 }

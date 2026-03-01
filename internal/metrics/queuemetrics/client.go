@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/metrics"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/ghobs91/lodestone/internal/metrics"
+	"github.com/ghobs91/lodestone/internal/model"
 	"gorm.io/gorm"
 )
 

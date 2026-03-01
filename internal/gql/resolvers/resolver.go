@@ -1,15 +1,15 @@
 package resolvers
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/blocking"
-	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
-	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
-	"github.com/bitmagnet-io/bitmagnet/internal/health"
-	"github.com/bitmagnet-io/bitmagnet/internal/metrics/queuemetrics"
-	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
-	"github.com/bitmagnet-io/bitmagnet/internal/processor"
-	"github.com/bitmagnet-io/bitmagnet/internal/queue/manager"
-	"github.com/bitmagnet-io/bitmagnet/internal/worker"
+	"github.com/ghobs91/lodestone/internal/blocking"
+	"github.com/ghobs91/lodestone/internal/database/dao"
+	"github.com/ghobs91/lodestone/internal/database/search"
+	"github.com/ghobs91/lodestone/internal/health"
+	"github.com/ghobs91/lodestone/internal/metrics/queuemetrics"
+	"github.com/ghobs91/lodestone/internal/metrics/torrentmetrics"
+	"github.com/ghobs91/lodestone/internal/processor"
+	"github.com/ghobs91/lodestone/internal/queue/manager"
+	"github.com/ghobs91/lodestone/internal/worker"
 )
 
 // This file will not be regenerated automatically.

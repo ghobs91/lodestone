@@ -1,7 +1,7 @@
 package query
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/ghobs91/lodestone/internal/model"
 )
 
 type SearchParams struct {

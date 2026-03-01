@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/gql"
-	"github.com/bitmagnet-io/bitmagnet/internal/gql/resolvers"
-	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
+	"github.com/ghobs91/lodestone/internal/gql"
+	"github.com/ghobs91/lodestone/internal/gql/resolvers"
+	"github.com/ghobs91/lodestone/internal/lazy"
 	"go.uber.org/fx"
 )
 

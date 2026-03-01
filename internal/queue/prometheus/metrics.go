@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
-	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/ghobs91/lodestone/internal/database/dao"
+	"github.com/ghobs91/lodestone/internal/lazy"
+	"github.com/ghobs91/lodestone/internal/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 )
 
 // namespace used in fully-qualified metrics names.
-const namespace = "bitmagnet_queue"
+const namespace = "lodestone_queue"
 
 // queueMetricsCollector gathers queue metrics.
 // It implements prometheus.Collector interface.

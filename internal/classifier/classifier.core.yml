@@ -1,4 +1,4 @@
-$schema: "https://bitmagnet.io/schemas/classifier-0.1.json"
+$schema: "https://lodestone.dev/schemas/classifier-0.1.json"
 workflows:
   default:
     # delete torrents containing banned keywords:

@@ -117,7 +117,7 @@
     "status": "状态"
   },
   "health": {
-    "bitmagnet_is_status": "bitmagnet是{{status}}",
+    "lodestone_is_status": "lodestone是{{status}}",
     "check_failed_with_error": "检查失败，错误",
     "component": "组件",
     "components": {
@@ -210,11 +210,11 @@
     "zu": "祖鲁语"
   },
   "layout": {
-    "bitmagnet_on_service": "bitmagnet在{{service}}",
+    "lodestone_on_service": "lodestone在{{service}}",
     "change_theme": "更改主题",
     "external_links": "外部链接",
     "sponsor": "赞助商",
-    "support_bitmagnet": "支持bitmagnet",
+    "support_lodestone": "支持lodestone",
     "translate": "翻译"
   },
   "paginator": {
@@ -311,7 +311,7 @@
     "votes_count_n": "{{count}}票"
   },
   "version": {
-    "bitmagnet_version": "bitmagnet版本{{version}}",
+    "lodestone_version": "lodestone版本{{version}}",
     "unknown": "未知"
   }
 }

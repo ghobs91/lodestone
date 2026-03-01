@@ -28,7 +28,7 @@ func NewDefaultConfig() Config {
 		Host:     "localhost",
 		User:     "postgres",
 		Port:     5432,
-		Name:     "bitmagnet",
+		Name:     "lodestone",
 		MaxConns: 50,
 		MinConns: 10,
 	}

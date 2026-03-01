@@ -3,11 +3,11 @@ package gqlmodel
 import (
 	"context"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
-	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
-	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel/gen"
-	"github.com/bitmagnet-io/bitmagnet/internal/metrics/torrentmetrics"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/ghobs91/lodestone/internal/database/dao"
+	"github.com/ghobs91/lodestone/internal/database/search"
+	"github.com/ghobs91/lodestone/internal/gql/gqlmodel/gen"
+	"github.com/ghobs91/lodestone/internal/metrics/torrentmetrics"
+	"github.com/ghobs91/lodestone/internal/model"
 )
 
 type TorrentQuery struct {

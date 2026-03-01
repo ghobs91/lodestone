@@ -57,7 +57,7 @@ jobs:
         env:
           PGUSER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: bitmagnet
+          POSTGRES_DB: lodestone
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -84,4 +84,4 @@ jobs:
           POSTGRES_PASSWORD: postgres
       - name: Check nothing changed
         # excluding the 3rdpartylicenses file in a horrible hack:
-        run: git diff --exit-code -- . ':(exclude)webui/dist/bitmagnet/3rdpartylicenses.txt'
+        run: git diff --exit-code -- . ':(exclude)webui/dist/lodestone/3rdpartylicenses.txt'

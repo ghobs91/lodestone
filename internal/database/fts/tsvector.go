@@ -10,8 +10,8 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/lexer"
-	"github.com/bitmagnet-io/bitmagnet/internal/maps"
+	"github.com/ghobs91/lodestone/internal/lexer"
+	"github.com/ghobs91/lodestone/internal/maps"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

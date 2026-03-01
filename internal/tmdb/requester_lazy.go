@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/concurrency"
+	"github.com/ghobs91/lodestone/internal/concurrency"
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
 	"golang.org/x/sync/semaphore"

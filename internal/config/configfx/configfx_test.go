@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/config"
-	"github.com/bitmagnet-io/bitmagnet/internal/config/configresolver"
+	"github.com/ghobs91/lodestone/internal/config"
+	"github.com/ghobs91/lodestone/internal/config/configresolver"
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/fx"

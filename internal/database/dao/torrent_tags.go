@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql/driver"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/model"
+	"github.com/ghobs91/lodestone/internal/protocol"
 	"gorm.io/gorm/clause"
 )
 

@@ -3,7 +3,7 @@
     mat-icon-button
     [class]="'health-icon ' + 'health-icon-' + health.result.status"
     [matTooltip]="
-      t('health.bitmagnet_is_status', {
+      t('health.lodestone_is_status', {
         status: t('health.statuses.' + health.result.status),
       })
     "
@@ -15,7 +15,7 @@
     <h2 matDialogTitle>
       {{ t("health.summary") }}:
       {{
-        t("health.bitmagnet_is_status", {
+        t("health.lodestone_is_status", {
           status: t(
             "health.statuses." +
               (health.result.error ? "down" : health.result.status)

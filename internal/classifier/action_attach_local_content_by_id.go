@@ -1,8 +1,8 @@
 package classifier
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/classifier/classification"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/ghobs91/lodestone/internal/classifier/classification"
+	"github.com/ghobs91/lodestone/internal/model"
 )
 
 const attachLocalContentByIDName = "attach_local_content_by_id"

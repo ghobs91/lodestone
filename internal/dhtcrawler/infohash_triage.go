@@ -5,9 +5,9 @@ import (
 	"database/sql/driver"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/database/dao"
+	"github.com/ghobs91/lodestone/internal/model"
+	"github.com/ghobs91/lodestone/internal/protocol"
 )
 
 // runInfoHashTriage receives discovered hashes on the infoHashTriage channel, determines if they should be crawled,

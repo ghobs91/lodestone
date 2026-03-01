@@ -1,8 +1,8 @@
 package healthcheck
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/health"
-	"github.com/bitmagnet-io/bitmagnet/internal/version"
+	"github.com/ghobs91/lodestone/internal/health"
+	"github.com/ghobs91/lodestone/internal/version"
 	"go.uber.org/fx"
 )
 
@@ -14,7 +14,7 @@ type Result struct {
 func New() Result {
 	return Result{
 		HealthOption: health.WithInfo(map[string]any{
-			"name":    "bitmagnet",
+			"name":    "lodestone",
 			"version": version.GitTag,
 		}),
 	}

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/lexer"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/ghobs91/lodestone/internal/lexer"
+	"github.com/ghobs91/lodestone/internal/model"
 )
 
 type dateLexer struct {

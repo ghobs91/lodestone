@@ -1,9 +1,9 @@
 package tmdbfx
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/config/configfx"
-	"github.com/bitmagnet-io/bitmagnet/internal/tmdb"
-	"github.com/bitmagnet-io/bitmagnet/internal/tmdb/tmdbhealthcheck"
+	"github.com/ghobs91/lodestone/internal/config/configfx"
+	"github.com/ghobs91/lodestone/internal/tmdb"
+	"github.com/ghobs91/lodestone/internal/tmdb/tmdbhealthcheck"
 	"go.uber.org/fx"
 )
 

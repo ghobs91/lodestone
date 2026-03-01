@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true, // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require("path").join(__dirname, "./coverage/bitmagnet"),
+      dir: require("path").join(__dirname, "./coverage/lodestone"),
       subdir: ".",
       reporters: [{ type: "html" }, { type: "text-summary" }],
     },

@@ -5,9 +5,9 @@ import (
 	"net/netip"
 
 	adht "github.com/anacrolix/dht/v2"
-	"github.com/bitmagnet-io/bitmagnet/internal/config/configfx"
-	"github.com/bitmagnet-io/bitmagnet/internal/dhtcrawler"
-	"github.com/bitmagnet-io/bitmagnet/internal/dhtcrawler/dhtcrawlerhealthcheck"
+	"github.com/ghobs91/lodestone/internal/config/configfx"
+	"github.com/ghobs91/lodestone/internal/dhtcrawler"
+	"github.com/ghobs91/lodestone/internal/dhtcrawler/dhtcrawlerhealthcheck"
 	"go.uber.org/fx"
 )
 

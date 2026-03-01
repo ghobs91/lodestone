@@ -12,7 +12,7 @@ import (
 
 	"github.com/anacrolix/missinggo/v2/slices"
 	"github.com/anacrolix/torrent/bencode"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/protocol"
 )
 
 type NodeInfo struct {

@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/adrg/xdg"
-	"github.com/bitmagnet-io/bitmagnet/internal/config"
-	"github.com/bitmagnet-io/bitmagnet/internal/config/configresolver"
+	"github.com/ghobs91/lodestone/internal/config"
+	"github.com/ghobs91/lodestone/internal/config/configresolver"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/fx"
 )
@@ -64,7 +64,7 @@ func New() fx.Option {
 			},
 		),
 	)
-	if configFilePath, err := xdg.ConfigFile("bitmagnet/config.yml"); err == nil {
+	if configFilePath, err := xdg.ConfigFile("lodestone/config.yml"); err == nil {
 		options = append(options,
 			fx.Provide(
 				fx.Annotated{

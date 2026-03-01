@@ -117,7 +117,7 @@
     "status": "Durum"
   },
   "health": {
-    "bitmagnet_is_status": "bitmagnet durumu {{status}}",
+    "lodestone_is_status": "lodestone durumu {{status}}",
     "check_failed_with_error": "Hata ile kontrol başarısız oldu",
     "component": "Bileşen",
     "components": {
@@ -210,11 +210,11 @@
     "zu": "Zuluca"
   },
   "layout": {
-    "bitmagnet_on_service": "{{service}} üzerinde bitmagnet",
+    "lodestone_on_service": "{{service}} üzerinde lodestone",
     "change_theme": "Temayı Değiştir",
     "external_links": "Dış Bağlantılar",
     "sponsor": "Sponsor",
-    "support_bitmagnet": "bitmagnet'i Destekle",
+    "support_lodestone": "lodestone'i Destekle",
     "translate": "Çevir"
   },
   "paginator": {
@@ -311,7 +311,7 @@
     "votes_count_n": "{{count}} oy"
   },
   "version": {
-    "bitmagnet_version": "bitmagnet versiyonu {{version}}",
+    "lodestone_version": "lodestone versiyonu {{version}}",
     "unknown": "bilinmiyor"
   }
 }

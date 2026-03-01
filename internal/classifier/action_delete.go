@@ -1,6 +1,6 @@
 package classifier
 
-import "github.com/bitmagnet-io/bitmagnet/internal/classifier/classification"
+import "github.com/ghobs91/lodestone/internal/classifier/classification"
 
 const deleteName = "delete"
 

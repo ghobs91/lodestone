@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <caps>
-  <server title="bitmagnet" />
+  <server title="lodestone" />
   <limits max="100" default="100" />
   <searching>
     <search available="yes" supportedParams="q" />

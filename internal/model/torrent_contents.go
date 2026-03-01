@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/database/fts"
+	"github.com/ghobs91/lodestone/internal/database/fts"
 )
 
 func (tc TorrentContent) InferID() string {

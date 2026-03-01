@@ -16,7 +16,7 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/ghobs91/lodestone/internal/model"
 )
 
 func newContentCollection(db *gorm.DB, opts ...gen.DOOption) contentCollection {

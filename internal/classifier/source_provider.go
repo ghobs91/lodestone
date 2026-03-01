@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/adrg/xdg"
-	"github.com/bitmagnet-io/bitmagnet/internal/tmdb"
+	"github.com/ghobs91/lodestone/internal/tmdb"
 	"gopkg.in/yaml.v3"
 )
 
@@ -93,7 +93,7 @@ func (coreSourceProvider) source() ([]byte, error) {
 type xdgSourceProvider struct{}
 
 func (xdgSourceProvider) source() ([]byte, error) {
-	if path, pathErr := xdg.ConfigFile("bitmagnet/classifier.yml"); pathErr == nil {
+	if path, pathErr := xdg.ConfigFile("lodestone/classifier.yml"); pathErr == nil {
 		if bytes, readErr := os.ReadFile(path); readErr == nil {
 			return bytes, nil
 		} else if !os.IsNotExist(readErr) {

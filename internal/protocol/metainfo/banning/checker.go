@@ -3,8 +3,8 @@ package banning
 import (
 	"errors"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/metainfo"
-	"github.com/bitmagnet-io/bitmagnet/internal/slice"
+	"github.com/ghobs91/lodestone/internal/protocol/metainfo"
+	"github.com/ghobs91/lodestone/internal/slice"
 	"go.uber.org/fx"
 )
 

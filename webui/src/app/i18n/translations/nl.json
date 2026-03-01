@@ -117,7 +117,7 @@
     "status": "Status"
   },
   "health": {
-    "bitmagnet_is_status": "bitmagnet is {{status}}",
+    "lodestone_is_status": "lodestone is {{status}}",
     "check_failed_with_error": "Controle mislukt met foutmelding",
     "component": "Component",
     "components": {
@@ -210,11 +210,11 @@
     "zu": "Zoeloe"
   },
   "layout": {
-    "bitmagnet_on_service": "bitmagnet op {{service}}",
+    "lodestone_on_service": "lodestone op {{service}}",
     "change_theme": "Wijzig thema",
     "external_links": "Externe links",
     "sponsor": "Sponsor",
-    "support_bitmagnet": "Ondersteun bitmagnet",
+    "support_lodestone": "Ondersteun lodestone",
     "translate": "Vertalen"
   },
   "paginator": {
@@ -311,7 +311,7 @@
     "votes_count_n": "{{count}} stemmen"
   },
   "version": {
-    "bitmagnet_version": "bitmagnet versie {{version}}",
+    "lodestone_version": "lodestone versie {{version}}",
     "unknown": "onbekend"
   }
 }

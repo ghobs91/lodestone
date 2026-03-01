@@ -1,14 +1,14 @@
-# This is a full-featured example for running bitmagnet through a gluetun VPN connection with Grafana/Prometheus observability services.
-# See https://bitmagnet.io/setup/installation.html for a minimal docker-compose example.
+# This is a full-featured example for running lodestone through a gluetun VPN connection with Grafana/Prometheus observability services.
+# See https://lodestone.dev/setup/installation.html for a minimal docker-compose example.
 
 services:
-  bitmagnet:
-    container_name: bitmagnet
-    image: ghcr.io/bitmagnet-io/bitmagnet:latest
+  lodestone:
+    container_name: lodestone
+    image: ghcr.io/ghobs91/lodestone:latest
     volumes:
-      - ./config:/root/.config/bitmagnet
+      - ./config:/root/.config/lodestone
       # Mount data folder (currently only used for logs when file rotation is enabled):
-      - ./data/bitmagnet:/root/.local/share/bitmagnet
+      - ./data/lodestone:/root/.local/share/lodestone
     restart: unless-stopped
     environment:
       # Enable logging to rotating files for ingest to Loki:
@@ -33,12 +33,12 @@ services:
       # - --keys=dht_crawler
 
   gluetun:
-    container_name: bitmagnet-gluetun
+    container_name: lodestone-gluetun
     image: qmcgaw/gluetun:latest
     cap_add:
       - NET_ADMIN
     ports:
-      # The bitmagnet ports must be exposed by the gluetun container:
+      # The lodestone ports must be exposed by the gluetun container:
       - "3333:3333"
       # BitTorrent ports:
       - "3334:3334/tcp"
@@ -51,20 +51,20 @@ services:
       # See https://github.com/qdm12/gluetun/issues/2538
       - /dev/net/tun:/dev/net/tun
     restart: always
-    # Host names must be manually mapped here for bitmagnet to resolve them:
+    # Host names must be manually mapped here for lodestone to resolve them:
     extra_hosts:
       - "postgres:192.168.55.11"
     networks:
-      bitmagnet:
+      lodestone:
         ipv4_address: 192.168.55.10
 
   postgres:
     image: postgres:16-alpine
-    container_name: bitmagnet-postgres
+    container_name: lodestone-postgres
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     networks:
-      bitmagnet:
+      lodestone:
         ipv4_address: 192.168.55.11
     ports:
       - "5432:5432"
@@ -72,7 +72,7 @@ services:
     restart: unless-stopped
     environment:
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=bitmagnet
+      - POSTGRES_DB=lodestone
       - PGUSER=postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready"]
@@ -84,7 +84,7 @@ services:
 
   # Visualization and dashboards:
   grafana:
-    container_name: bitmagnet-grafana
+    container_name: lodestone-grafana
     image: grafana/grafana:latest
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
@@ -99,14 +99,14 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - bitmagnet
+      - lodestone
 
   # Metrics and logs scraping:
   grafana-agent:
-    container_name: bitmagnet-grafana-agent
+    container_name: lodestone-grafana-agent
     image: grafana/agent:latest
     volumes:
-      - ./data/bitmagnet/logs:/var/log/bitmagnet
+      - ./data/lodestone/logs:/var/log/lodestone
       # Mount the logs and metrics scraping configurations:
       - ./observability/grafana-agent.config.river:/etc/agent-config/config.river
     command:
@@ -119,38 +119,38 @@ services:
       LOKI_HOST: loki:3100
       POSTGRES_HOST: postgres:5432
       REDIS_HOST: redis:6379
-    # The bitmagnet host must be mapped to the gluetun container:
+    # The lodestone host must be mapped to the gluetun container:
     extra_hosts:
-      - "bitmagnet:192.168.55.10"
+      - "lodestone:192.168.55.10"
     ports:
       - "12345:12345"
     depends_on:
       - gluetun
       - loki
     networks:
-      - bitmagnet
+      - lodestone
 
   # Metrics storage and aggregation:
   prometheus:
     image: prom/prometheus:latest
-    container_name: bitmagnet-prometheus
+    container_name: lodestone-prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     ports:
       - 9090:9090
-    # The bitmagnet host must be mapped to the gluetun container:
+    # The lodestone host must be mapped to the gluetun container:
     extra_hosts:
-      - "bitmagnet:192.168.55.10"
+      - "lodestone:192.168.55.10"
     restart: unless-stopped
     volumes:
       - ./data/prometheus:/prometheus
       - ./observability/prometheus.config.yaml:/etc/prometheus/prometheus.yml
     networks:
-      - bitmagnet
+      - lodestone
 
   # Log storage and aggregation:
   loki:
-    container_name: bitmagnet-loki
+    container_name: lodestone-loki
     image: grafana/loki:latest
     ports:
       - "3100:3100"
@@ -159,11 +159,11 @@ services:
       - ./observability/loki.config.yaml:/etc/loki/local-config.yaml
     command: -config.file=/etc/loki/local-config.yaml
     networks:
-      - bitmagnet
+      - lodestone
 
   # Runtime profiling:
   pyroscope:
-    container_name: bitmagnet-pyroscope
+    container_name: lodestone-pyroscope
     image: grafana/pyroscope:latest
     deploy:
       restart_policy:
@@ -176,24 +176,24 @@ services:
       - ./observability/pyroscope.config.yaml:/etc/pyroscope/server.yaml
       - ./data/pyroscope:/var/lib/pyroscope
     networks:
-      - bitmagnet
+      - lodestone
 
   # Prometheus metrics for Postgres:
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
-    container_name: bitmagnet-postgres-exporter
+    container_name: lodestone-postgres-exporter
     ports:
       - 9187:9187
     environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/bitmagnet?sslmode=disable"
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/lodestone?sslmode=disable"
     links:
       - postgres
       - prometheus
     networks:
-      - bitmagnet
+      - lodestone
 
 networks:
-  bitmagnet:
+  lodestone:
     driver: bridge
     ipam:
       driver: default

@@ -5,8 +5,8 @@ import (
 	"io/fs"
 	"net/http"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/httpserver"
-	"github.com/bitmagnet-io/bitmagnet/webui"
+	"github.com/ghobs91/lodestone/internal/httpserver"
+	"github.com/ghobs91/lodestone/webui"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -41,7 +41,7 @@ func (*builder) Key() string {
 func (b *builder) Apply(e *gin.Engine) error {
 	webuiFS := webui.StaticFS()
 
-	appRoot, appRootErr := fs.Sub(webuiFS, "dist/bitmagnet/browser")
+	appRoot, appRootErr := fs.Sub(webuiFS, "dist/lodestone/browser")
 	if appRootErr != nil {
 		b.logger.Errorf(
 			"the webui app root directory is missing; run `npm run build` within the `webui` folder: %v",

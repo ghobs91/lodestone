@@ -1,6 +1,6 @@
 ---
 title: Classifier
-description: Understanding and customizing bitmagnet's classifier
+description: Understanding and customizing lodestone's classifier
 parent: Guides
 layout: default
 nav_order: 4
@@ -27,34 +27,34 @@ redirect_from:
 
 After a torrent is crawled or imported, some further processing must be done to gather metadata, have a guess at the torrent's contents and finally index it in the database, allowing it to be searched and displayed in the UI/API.
 
-**bitmagnet**'s classifier is powered by a [Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language). The aim of this is to provide a high level of customisability, along with transparency into the classification process which will hopefully aid collaboration on improvements to the core classifier logic.
+**lodestone**'s classifier is powered by a [Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language). The aim of this is to provide a high level of customisability, along with transparency into the classification process which will hopefully aid collaboration on improvements to the core classifier logic.
 
-The classifier is declared in YAML format. The application includes a [core classifier](https://github.com/bitmagnet-io/bitmagnet/blob/main/internal/classifier/classifier.core.yml) that can be configured, extended or completely replaced with a custom classifier. This page documents the required format.
+The classifier is declared in YAML format. The application includes a [core classifier](https://github.com/ghobs91/lodestone/blob/main/internal/classifier/classifier.core.yml) that can be configured, extended or completely replaced with a custom classifier. This page documents the required format.
 
 ## Source precedence
 
-**bitmagnet** will attempt to load classifier source code from all the following locations. Any discovered classifier source will be merged with other sources in the following order of precedence:
+**lodestone** will attempt to load classifier source code from all the following locations. Any discovered classifier source will be merged with other sources in the following order of precedence:
 
-- [the core classifier](https://github.com/bitmagnet-io/bitmagnet/blob/main/internal/classifier/classifier.core.yml)
-- `classifier.yml` in the [XDG-compliant](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) config location for the current user (for example on MacOS this is `~/Library/Application Support/bitmagnet/classifier.yml`)
+- [the core classifier](https://github.com/ghobs91/lodestone/blob/main/internal/classifier/classifier.core.yml)
+- `classifier.yml` in the [XDG-compliant](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html) config location for the current user (for example on MacOS this is `~/Library/Application Support/lodestone/classifier.yml`)
 - `classifier.yml` in the current working directory
 - [Classifier configuration](#configuration)
 
 Note that multiple sources will be merged, not replaced. For example, keywords added to the classifier configuration will be merged with the core keywords.
 
-The merged classifier source can be viewed with the CLI command `bitmagnet classifier show`.
+The merged classifier source can be viewed with the CLI command `lodestone classifier show`.
 
 {% include callout_cli.md %}
 
 ## Schema
 
-A [JSON schema for the classifier](https://bitmagnet.io/schemas/classifier-0.1.json) is available; some editors and IDEs will be able to validate the structure of your classifier document by specifying the `$schema` attribute:
+A [JSON schema for the classifier](https://lodestone.dev/schemas/classifier-0.1.json) is available; some editors and IDEs will be able to validate the structure of your classifier document by specifying the `$schema` attribute:
 
 ```yaml
-$schema: https://bitmagnet.io/schemas/classifier-0.1.json
+$schema: https://lodestone.dev/schemas/classifier-0.1.json
 ```
 
-The classifier schema can also be viewed by running the cli command `bitmagnet classifier schema`.
+The classifier schema can also be viewed by running the cli command `lodestone classifier schema`.
 
 {% include callout_cli.md %}
 
@@ -132,7 +132,7 @@ find_match:
       else_action: unmatched
 ```
 
-For a full list of available actions, please refer to [the JSON schema](https://bitmagnet.io/schemas/classifier-0.1.json).
+For a full list of available actions, please refer to [the JSON schema](https://lodestone.dev/schemas/classifier-0.1.json).
 
 ## Conditions
 
@@ -142,10 +142,10 @@ The conditions in the examples above use [CEL (Common Expression Language) expre
 
 ### The CEL environment
 
-CEL is already a [well-documented](https://github.com/google/cel-spec/blob/master/doc/intro.md) language, so this page won't go into detail about the CEL syntax. In the context of the **bitmagnet** classifier, the CEL environment exposes a number of variables:
+CEL is already a [well-documented](https://github.com/google/cel-spec/blob/master/doc/intro.md) language, so this page won't go into detail about the CEL syntax. In the context of the **lodestone** classifier, the CEL environment exposes a number of variables:
 
-- `torrent`: The current torrent being classified (protobuf type: `bitmagnet.Torrent`)
-- `result`: The current classification result (protobuf type: `bitmagnet.Classification`)
+- `torrent`: The current torrent being classified (protobuf type: `lodestone.Torrent`)
+- `result`: The current classification result (protobuf type: `lodestone.Classification`)
 - `keywords`: A map of strings to regular expressions, representing named lists of [keywords](#keywords)
 - `extensions`: A map of strings to string lists, representing named lists of [extensions](#extensions)
 - `contentType`: A map of strings to enum values representing content types (e.g. `contentType.movie`, `contentType.music`)
@@ -153,7 +153,7 @@ CEL is already a [well-documented](https://github.com/google/cel-spec/blob/maste
 - `flags`: A map of strings to the configured values of [flags](#flags)
 - `kb`, `mb`, `gb`: Variables defined for convenience, equal to the number of bytes in a kilobyte, megabyte and gigabyte respectively
 
-For more details on the protocol buffer types, please refer to [the protobuf schema](https://github.com/bitmagnet-io/bitmagnet/blob/main/internal/protobuf/bitmagnet.proto).
+For more details on the protocol buffer types, please refer to [the protobuf schema](https://github.com/ghobs91/lodestone/blob/main/internal/protobuf/lodestone.proto).
 
 ### Boolean logic (`or`, `and` & `not`)
 
@@ -278,12 +278,12 @@ Or as environment variables you could specify:
 TMDB_ENABLED=false \ # disable the TMDB API integration
   CLASSIFIER_WORKFLOW=custom \ # specify a custom workflow to be used
   CLASSIFIER_DELETE_XXX=true \ # auto-delete all adult content
-  bitmagnet worker run --all
+  lodestone worker run --all
 ```
 
 ## Validation
 
-The classifier source is compiled on initial load, and all structural and syntax errors should be caught at compile time. If there are errors in your classifier source, **bitmagnet** should exit with an error message indicating the location of the problem.
+The classifier source is compiled on initial load, and all structural and syntax errors should be caught at compile time. If there are errors in your classifier source, **lodestone** should exit with an error message indicating the location of the problem.
 
 ## Reclassify torrents
 
@@ -379,4 +379,4 @@ workflows:
           add_tag: interesting-documents
 ```
 
-To specify that the custom workflow should be used, remember to specify the `classifier.workflow` configuration option, e.g. `CLASSIFIER_WORKFLOW=custom bitmagnet worker run --all`.
+To specify that the custom workflow should be used, remember to specify the `classifier.workflow` configuration option, e.g. `CLASSIFIER_WORKFLOW=custom lodestone worker run --all`.

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/netip"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/server"
+	"github.com/ghobs91/lodestone/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/protocol/dht"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/server"
 )
 
 type serverAdapter struct {

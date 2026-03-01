@@ -1,7 +1,7 @@
 package manager
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
+	"github.com/ghobs91/lodestone/internal/database/dao"
 	"gorm.io/gorm"
 )
 

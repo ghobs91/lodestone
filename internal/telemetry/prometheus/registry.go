@@ -1,7 +1,7 @@
 package prometheus
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
+	"github.com/ghobs91/lodestone/internal/lazy"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"go.uber.org/fx"
@@ -17,7 +17,7 @@ type Result struct {
 	Registry lazy.Lazy[*prometheus.Registry]
 }
 
-const Namespace = "bitmagnet"
+const Namespace = "lodestone"
 
 func New(p Params) (Result, error) {
 	return Result{

@@ -7,7 +7,7 @@ package model
 import (
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/database/fts"
+	"github.com/ghobs91/lodestone/internal/database/fts"
 )
 
 const TableNameContent = "content"

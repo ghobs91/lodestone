@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/keywords"
+	"github.com/ghobs91/lodestone/internal/keywords"
 	"github.com/facette/natsort"
 )
 

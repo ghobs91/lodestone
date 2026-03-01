@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.35.1
 // 	protoc        v5.28.3
-// source: internal/protobuf/bitmagnet.proto
+// source: internal/protobuf/lodestone.proto
 
 package protobuf
 
@@ -71,11 +71,11 @@ func (x Torrent_File_FileType) String() string {
 }
 
 func (Torrent_File_FileType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_protobuf_bitmagnet_proto_enumTypes[0].Descriptor()
+	return file_internal_protobuf_lodestone_proto_enumTypes[0].Descriptor()
 }
 
 func (Torrent_File_FileType) Type() protoreflect.EnumType {
-	return &file_internal_protobuf_bitmagnet_proto_enumTypes[0]
+	return &file_internal_protobuf_lodestone_proto_enumTypes[0]
 }
 
 func (x Torrent_File_FileType) Number() protoreflect.EnumNumber {
@@ -84,7 +84,7 @@ func (x Torrent_File_FileType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Torrent_File_FileType.Descriptor instead.
 func (Torrent_File_FileType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_protobuf_bitmagnet_proto_rawDescGZIP(), []int{0, 0, 0}
+	return file_internal_protobuf_lodestone_proto_rawDescGZIP(), []int{0, 0, 0}
 }
 
 type Classification_ContentType int32
@@ -141,11 +141,11 @@ func (x Classification_ContentType) String() string {
 }
 
 func (Classification_ContentType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_protobuf_bitmagnet_proto_enumTypes[1].Descriptor()
+	return file_internal_protobuf_lodestone_proto_enumTypes[1].Descriptor()
 }
 
 func (Classification_ContentType) Type() protoreflect.EnumType {
-	return &file_internal_protobuf_bitmagnet_proto_enumTypes[1]
+	return &file_internal_protobuf_lodestone_proto_enumTypes[1]
 }
 
 func (x Classification_ContentType) Number() protoreflect.EnumNumber {
@@ -154,7 +154,7 @@ func (x Classification_ContentType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Classification_ContentType.Descriptor instead.
 func (Classification_ContentType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_protobuf_bitmagnet_proto_rawDescGZIP(), []int{1, 0}
+	return file_internal_protobuf_lodestone_proto_rawDescGZIP(), []int{1, 0}
 }
 
 type Torrent struct {
@@ -179,7 +179,7 @@ type Torrent struct {
 
 func (x *Torrent) Reset() {
 	*x = Torrent{}
-	mi := &file_internal_protobuf_bitmagnet_proto_msgTypes[0]
+	mi := &file_internal_protobuf_lodestone_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -191,7 +191,7 @@ func (x *Torrent) String() string {
 func (*Torrent) ProtoMessage() {}
 
 func (x *Torrent) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_protobuf_bitmagnet_proto_msgTypes[0]
+	mi := &file_internal_protobuf_lodestone_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -204,7 +204,7 @@ func (x *Torrent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Torrent.ProtoReflect.Descriptor instead.
 func (*Torrent) Descriptor() ([]byte, []int) {
-	return file_internal_protobuf_bitmagnet_proto_rawDescGZIP(), []int{0}
+	return file_internal_protobuf_lodestone_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Torrent) GetInfoHash() string {
@@ -303,7 +303,7 @@ type Classification struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	ContentType        Classification_ContentType `protobuf:"varint,1,opt,name=contentType,proto3,enum=bitmagnet.Classification_ContentType" json:"contentType,omitempty"`
+	ContentType        Classification_ContentType `protobuf:"varint,1,opt,name=contentType,proto3,enum=lodestone.Classification_ContentType" json:"contentType,omitempty"`
 	HasAttachedContent bool                       `protobuf:"varint,2,opt,name=hasAttachedContent,proto3" json:"hasAttachedContent,omitempty"`
 	HasBaseTitle       bool                       `protobuf:"varint,3,opt,name=hasBaseTitle,proto3" json:"hasBaseTitle,omitempty"`
 	Year               *int32                     `protobuf:"varint,4,opt,name=year,proto3,oneof" json:"year,omitempty"`
@@ -320,7 +320,7 @@ type Classification struct {
 
 func (x *Classification) Reset() {
 	*x = Classification{}
-	mi := &file_internal_protobuf_bitmagnet_proto_msgTypes[1]
+	mi := &file_internal_protobuf_lodestone_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -332,7 +332,7 @@ func (x *Classification) String() string {
 func (*Classification) ProtoMessage() {}
 
 func (x *Classification) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_protobuf_bitmagnet_proto_msgTypes[1]
+	mi := &file_internal_protobuf_lodestone_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -345,7 +345,7 @@ func (x *Classification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Classification.ProtoReflect.Descriptor instead.
 func (*Classification) Descriptor() ([]byte, []int) {
-	return file_internal_protobuf_bitmagnet_proto_rawDescGZIP(), []int{1}
+	return file_internal_protobuf_lodestone_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Classification) GetContentType() Classification_ContentType {
@@ -450,12 +450,12 @@ type Torrent_File struct {
 	BaseName  string                `protobuf:"bytes,4,opt,name=baseName,proto3" json:"baseName,omitempty"`
 	Size      int64                 `protobuf:"varint,5,opt,name=size,proto3" json:"size,omitempty"`
 	Extension *string               `protobuf:"bytes,6,opt,name=extension,proto3,oneof" json:"extension,omitempty"`
-	FileType  Torrent_File_FileType `protobuf:"varint,7,opt,name=fileType,proto3,enum=bitmagnet.Torrent_File_FileType" json:"fileType,omitempty"`
+	FileType  Torrent_File_FileType `protobuf:"varint,7,opt,name=fileType,proto3,enum=lodestone.Torrent_File_FileType" json:"fileType,omitempty"`
 }
 
 func (x *Torrent_File) Reset() {
 	*x = Torrent_File{}
-	mi := &file_internal_protobuf_bitmagnet_proto_msgTypes[2]
+	mi := &file_internal_protobuf_lodestone_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -467,7 +467,7 @@ func (x *Torrent_File) String() string {
 func (*Torrent_File) ProtoMessage() {}
 
 func (x *Torrent_File) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_protobuf_bitmagnet_proto_msgTypes[2]
+	mi := &file_internal_protobuf_lodestone_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -480,7 +480,7 @@ func (x *Torrent_File) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Torrent_File.ProtoReflect.Descriptor instead.
 func (*Torrent_File) Descriptor() ([]byte, []int) {
-	return file_internal_protobuf_bitmagnet_proto_rawDescGZIP(), []int{0, 0}
+	return file_internal_protobuf_lodestone_proto_rawDescGZIP(), []int{0, 0}
 }
 
 func (x *Torrent_File) GetIndex() int32 {
@@ -532,9 +532,9 @@ func (x *Torrent_File) GetFileType() Torrent_File_FileType {
 	return Torrent_File_unknown
 }
 
-var File_internal_protobuf_bitmagnet_proto protoreflect.FileDescriptor
+var File_internal_protobuf_lodestone_proto protoreflect.FileDescriptor
 
-var file_internal_protobuf_bitmagnet_proto_rawDesc = []byte{
+var file_internal_protobuf_lodestone_proto_rawDesc = []byte{
 	0x0a, 0x21, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x6e, 0x61, 0x6c, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x62, 0x75, 0x66, 0x2f, 0x62, 0x69, 0x74, 0x6d, 0x61, 0x67, 0x6e, 0x65, 0x74, 0x2e, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x12, 0x09, 0x62, 0x69, 0x74, 0x6d, 0x61, 0x67, 0x6e, 0x65, 0x74, 0x22, 0xe3,
@@ -647,30 +647,30 @@ var file_internal_protobuf_bitmagnet_proto_rawDesc = []byte{
 }
 
 var (
-	file_internal_protobuf_bitmagnet_proto_rawDescOnce sync.Once
-	file_internal_protobuf_bitmagnet_proto_rawDescData = file_internal_protobuf_bitmagnet_proto_rawDesc
+	file_internal_protobuf_lodestone_proto_rawDescOnce sync.Once
+	file_internal_protobuf_lodestone_proto_rawDescData = file_internal_protobuf_lodestone_proto_rawDesc
 )
 
-func file_internal_protobuf_bitmagnet_proto_rawDescGZIP() []byte {
-	file_internal_protobuf_bitmagnet_proto_rawDescOnce.Do(func() {
-		file_internal_protobuf_bitmagnet_proto_rawDescData = protoimpl.X.CompressGZIP(file_internal_protobuf_bitmagnet_proto_rawDescData)
+func file_internal_protobuf_lodestone_proto_rawDescGZIP() []byte {
+	file_internal_protobuf_lodestone_proto_rawDescOnce.Do(func() {
+		file_internal_protobuf_lodestone_proto_rawDescData = protoimpl.X.CompressGZIP(file_internal_protobuf_lodestone_proto_rawDescData)
 	})
-	return file_internal_protobuf_bitmagnet_proto_rawDescData
+	return file_internal_protobuf_lodestone_proto_rawDescData
 }
 
-var file_internal_protobuf_bitmagnet_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_internal_protobuf_bitmagnet_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_internal_protobuf_bitmagnet_proto_goTypes = []any{
-	(Torrent_File_FileType)(0),      // 0: bitmagnet.Torrent.File.FileType
-	(Classification_ContentType)(0), // 1: bitmagnet.Classification.ContentType
-	(*Torrent)(nil),                 // 2: bitmagnet.Torrent
-	(*Classification)(nil),          // 3: bitmagnet.Classification
-	(*Torrent_File)(nil),            // 4: bitmagnet.Torrent.File
+var file_internal_protobuf_lodestone_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_internal_protobuf_lodestone_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_internal_protobuf_lodestone_proto_goTypes = []any{
+	(Torrent_File_FileType)(0),      // 0: lodestone.Torrent.File.FileType
+	(Classification_ContentType)(0), // 1: lodestone.Classification.ContentType
+	(*Torrent)(nil),                 // 2: lodestone.Torrent
+	(*Classification)(nil),          // 3: lodestone.Classification
+	(*Torrent_File)(nil),            // 4: lodestone.Torrent.File
 }
-var file_internal_protobuf_bitmagnet_proto_depIdxs = []int32{
-	4, // 0: bitmagnet.Torrent.files:type_name -> bitmagnet.Torrent.File
-	1, // 1: bitmagnet.Classification.contentType:type_name -> bitmagnet.Classification.ContentType
-	0, // 2: bitmagnet.Torrent.File.fileType:type_name -> bitmagnet.Torrent.File.FileType
+var file_internal_protobuf_lodestone_proto_depIdxs = []int32{
+	4, // 0: lodestone.Torrent.files:type_name -> lodestone.Torrent.File
+	1, // 1: lodestone.Classification.contentType:type_name -> lodestone.Classification.ContentType
+	0, // 2: lodestone.Torrent.File.fileType:type_name -> lodestone.Torrent.File.FileType
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -678,31 +678,31 @@ var file_internal_protobuf_bitmagnet_proto_depIdxs = []int32{
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_internal_protobuf_bitmagnet_proto_init() }
-func file_internal_protobuf_bitmagnet_proto_init() {
-	if File_internal_protobuf_bitmagnet_proto != nil {
+func init() { file_internal_protobuf_lodestone_proto_init() }
+func file_internal_protobuf_lodestone_proto_init() {
+	if File_internal_protobuf_lodestone_proto != nil {
 		return
 	}
-	file_internal_protobuf_bitmagnet_proto_msgTypes[0].OneofWrappers = []any{}
-	file_internal_protobuf_bitmagnet_proto_msgTypes[1].OneofWrappers = []any{}
-	file_internal_protobuf_bitmagnet_proto_msgTypes[2].OneofWrappers = []any{}
+	file_internal_protobuf_lodestone_proto_msgTypes[0].OneofWrappers = []any{}
+	file_internal_protobuf_lodestone_proto_msgTypes[1].OneofWrappers = []any{}
+	file_internal_protobuf_lodestone_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_internal_protobuf_bitmagnet_proto_rawDesc,
+			RawDescriptor: file_internal_protobuf_lodestone_proto_rawDesc,
 			NumEnums:      2,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_internal_protobuf_bitmagnet_proto_goTypes,
-		DependencyIndexes: file_internal_protobuf_bitmagnet_proto_depIdxs,
-		EnumInfos:         file_internal_protobuf_bitmagnet_proto_enumTypes,
-		MessageInfos:      file_internal_protobuf_bitmagnet_proto_msgTypes,
+		GoTypes:           file_internal_protobuf_lodestone_proto_goTypes,
+		DependencyIndexes: file_internal_protobuf_lodestone_proto_depIdxs,
+		EnumInfos:         file_internal_protobuf_lodestone_proto_enumTypes,
+		MessageInfos:      file_internal_protobuf_lodestone_proto_msgTypes,
 	}.Build()
-	File_internal_protobuf_bitmagnet_proto = out.File
-	file_internal_protobuf_bitmagnet_proto_rawDesc = nil
-	file_internal_protobuf_bitmagnet_proto_goTypes = nil
-	file_internal_protobuf_bitmagnet_proto_depIdxs = nil
+	File_internal_protobuf_lodestone_proto = out.File
+	file_internal_protobuf_lodestone_proto_rawDesc = nil
+	file_internal_protobuf_lodestone_proto_goTypes = nil
+	file_internal_protobuf_lodestone_proto_depIdxs = nil
 }

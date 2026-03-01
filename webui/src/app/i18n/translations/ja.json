@@ -117,7 +117,7 @@
     "status": "ステータス"
   },
   "health": {
-    "bitmagnet_is_status": "bitmagnetは{{status}}です",
+    "lodestone_is_status": "lodestoneは{{status}}です",
     "check_failed_with_error": "エラーでチェックに失敗しました",
     "component": "コンポーネント",
     "components": {
@@ -210,11 +210,11 @@
     "zu": "ズールー語"
   },
   "layout": {
-    "bitmagnet_on_service": "{{service}}のbitmagnet",
+    "lodestone_on_service": "{{service}}のlodestone",
     "change_theme": "テーマを変更",
     "external_links": "外部リンク",
     "sponsor": "スポンサー",
-    "support_bitmagnet": "bitmagnetをサポート",
+    "support_lodestone": "lodestoneをサポート",
     "translate": "翻訳する"
   },
   "paginator": {
@@ -311,7 +311,7 @@
     "votes_count_n": "{{count}} 票"
   },
   "version": {
-    "bitmagnet_version": "bitmagnetバージョン {{version}}",
+    "lodestone_version": "lodestoneバージョン {{version}}",
     "unknown": "不明"
   }
 }

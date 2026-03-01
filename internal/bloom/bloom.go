@@ -3,7 +3,7 @@ package bloom
 import (
 	"encoding/binary"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht"
+	"github.com/ghobs91/lodestone/internal/protocol/dht"
 	"github.com/bits-and-blooms/bloom/v3"
 )
 

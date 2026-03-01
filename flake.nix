@@ -1,5 +1,5 @@
 {
-  description = "bitmagnet dev shell";
+  description = "lodestone dev shell";
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 

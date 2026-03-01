@@ -109,7 +109,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "bitmagnet_process_resident_memory_bytes",
+          "expr": "lodestone_process_resident_memory_bytes",
           "key": "Q-f7259626-8be6-4eaf-8b4a-d43f5f6650e8-0",
           "legendFormat": "Process Memory",
           "range": true,
@@ -205,7 +205,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(bitmagnet_dht_crawler_persisted_total[$__rate_interval])*60",
+          "expr": "rate(lodestone_dht_crawler_persisted_total[$__rate_interval])*60",
           "instant": false,
           "legendFormat": "{{entity}}",
           "range": true,
@@ -301,7 +301,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "increase(bitmagnet_queue_jobs_total[$__rate_interval])",
+          "expr": "increase(lodestone_queue_jobs_total[$__rate_interval])",
           "instant": false,
           "legendFormat": "{{queue}}:{{status}}",
           "range": true,
@@ -340,7 +340,7 @@
             "uid": "${DS_LOKI}"
           },
           "editorMode": "code",
-          "expr": "{job=\"bitmagnet\"} | json | severity = \"WARNING\" or severity = \"ERROR\"",
+          "expr": "{job=\"lodestone\"} | json | severity = \"WARNING\" or severity = \"ERROR\"",
           "queryType": "range",
           "refId": "A"
         }
@@ -435,7 +435,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "rate(bitmagnet_dht_server_query_success_total[$__rate_interval])",
+          "expr": "rate(lodestone_dht_server_query_success_total[$__rate_interval])",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "key": "Q-ed5d19ae-0667-4b4d-86f3-6bcd25acffad-0",
@@ -534,7 +534,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(bitmagnet_dht_server_query_error_total[$__rate_interval])",
+          "expr": "rate(lodestone_dht_server_query_error_total[$__rate_interval])",
           "instant": false,
           "legendFormat": "{{query}}",
           "range": true,
@@ -631,7 +631,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile(0.5, bitmagnet_dht_server_query_duration_seconds_bucket)",
+          "expr": "histogram_quantile(0.5, lodestone_dht_server_query_duration_seconds_bucket)",
           "instant": false,
           "legendFormat": "{{query}}",
           "range": true,
@@ -727,7 +727,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "bitmagnet_dht_server_query_concurrency",
+          "expr": "lodestone_dht_server_query_concurrency",
           "instant": false,
           "legendFormat": "{{query}}",
           "range": true,
@@ -823,7 +823,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(bitmagnet_meta_info_requester_success_total[$__rate_interval])",
+          "expr": "rate(lodestone_meta_info_requester_success_total[$__rate_interval])",
           "instant": false,
           "legendFormat": "Requests",
           "range": true,
@@ -919,7 +919,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(bitmagnet_meta_info_requester_error_total[$__rate_interval])",
+          "expr": "rate(lodestone_meta_info_requester_error_total[$__rate_interval])",
           "instant": false,
           "legendFormat": "Requests",
           "range": true,
@@ -1016,7 +1016,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, bitmagnet_meta_info_requester_duration_seconds_bucket)",
+          "expr": "histogram_quantile(0.5, lodestone_meta_info_requester_duration_seconds_bucket)",
           "instant": false,
           "legendFormat": "Latency",
           "range": true,
@@ -1112,7 +1112,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "bitmagnet_meta_info_requester_concurrency",
+          "expr": "lodestone_meta_info_requester_concurrency",
           "instant": false,
           "legendFormat": "{{__name__}}",
           "range": true,
@@ -1208,7 +1208,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(bitmagnet_classifier_success_total[$__rate_interval])*60",
+          "expr": "rate(lodestone_classifier_success_total[$__rate_interval])*60",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1304,7 +1304,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.5, bitmagnet_classifier_duration_seconds_bucket)",
+          "expr": "histogram_quantile(0.5, lodestone_classifier_duration_seconds_bucket)",
           "key": "Q-f3ef703c-7424-4114-840d-3ca86bbaecfa-0",
           "legendFormat": "__auto",
           "range": true,
@@ -1400,7 +1400,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(bitmagnet_dht_responder_query_success_total[$__rate_interval])",
+          "expr": "rate(lodestone_dht_responder_query_success_total[$__rate_interval])",
           "instant": false,
           "legendFormat": "{{query}}",
           "range": true,
@@ -1496,7 +1496,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "rate(bitmagnet_dht_responder_query_error_total[$__rate_interval])",
+          "expr": "rate(lodestone_dht_responder_query_error_total[$__rate_interval])",
           "instant": false,
           "legendFormat": "{{query}}",
           "range": true,
@@ -1557,7 +1557,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "bitmagnet",
+  "title": "lodestone",
   "uid": "c0abadd0-6633-40c4-a2fc-01408a8dfc4e",
   "version": 2,
   "weekStart": ""

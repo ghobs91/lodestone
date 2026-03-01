@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/slice"
+	"github.com/ghobs91/lodestone/internal/slice"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )

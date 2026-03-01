@@ -3,10 +3,10 @@ package processcmd
 import (
 	"encoding/json"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/classifier"
-	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
-	"github.com/bitmagnet-io/bitmagnet/internal/processor"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/classifier"
+	"github.com/ghobs91/lodestone/internal/lazy"
+	"github.com/ghobs91/lodestone/internal/processor"
+	"github.com/ghobs91/lodestone/internal/protocol"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/fx"
 	"go.uber.org/zap"

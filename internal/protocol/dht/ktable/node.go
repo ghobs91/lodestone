@@ -4,7 +4,7 @@ import (
 	"net/netip"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/protocol"
 )
 
 type nodeKeyspace struct {

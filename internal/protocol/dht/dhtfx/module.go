@@ -1,12 +1,12 @@
 package dhtfx
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/config/configfx"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/client"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/ktable"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/responder"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/server"
+	"github.com/ghobs91/lodestone/internal/config/configfx"
+	"github.com/ghobs91/lodestone/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/client"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/responder"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/server"
 	"go.uber.org/fx"
 )
 

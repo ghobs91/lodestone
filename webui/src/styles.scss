@@ -47,15 +47,15 @@ html {
   @include mat.all-component-themes(classic-theme.$theme);
   @include app-component-themes(classic-theme.$theme);
   //--mat-toolbar-container-text-color: #fff;
-  &[data-bitmagnet-theme="clean"] {
+  &[data-lodestone-theme="clean"] {
     @include classic-theme.clean-theme-vars;
   }
-  &[data-bitmagnet-theme="neon"] {
+  &[data-lodestone-theme="neon"] {
     @include mat.all-component-colors(neon-theme.$theme);
     @include app-component-themes(neon-theme.$theme);
     @include neon-theme.theme-vars;
   }
-  &[data-bitmagnet-theme="tundra"] {
+  &[data-lodestone-theme="tundra"] {
     @include mat.all-component-colors(tundra-theme.$theme);
     @include app-component-themes(tundra-theme.$theme);
     @include tundra-theme.theme-vars;

@@ -3,7 +3,7 @@ package classifier
 import (
 	"fmt"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/classifier/classification"
+	"github.com/ghobs91/lodestone/internal/classifier/classification"
 )
 
 const runWorkflowName = "run_workflow"

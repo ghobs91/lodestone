@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/ktable"
+	"github.com/ghobs91/lodestone/internal/protocol/dht"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable"
 )
 
 // responderNodeDiscovery attempts to add nodes from incoming requests to the discovered nodes channel.

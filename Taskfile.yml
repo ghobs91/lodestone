@@ -30,7 +30,7 @@ tasks:
 
   gen-protoc:
     cmds:
-      - protoc --go_out=. ./internal/protobuf/bitmagnet.proto
+      - protoc --go_out=. ./internal/protobuf/lodestone.proto
 
   gen-mockery:
     cmds:
@@ -38,7 +38,7 @@ tasks:
 
   gen-classifier-schema:
     cmds:
-      - go run . classifier schema --format json > ./bitmagnet.io/schemas/classifier-0.1.json
+      - go run . classifier schema --format json > ./lodestone.dev/schemas/classifier-0.1.json
 
   gen-webui-graphql:
     dir: ./webui
@@ -92,7 +92,7 @@ tasks:
 
   build:
     cmds:
-      - go build -ldflags "-X github.com/bitmagnet-io/bitmagnet/internal/version.GitTag=$(git describe --tags --always --dirty)"
+      - go build -ldflags "-X github.com/ghobs91/lodestone/internal/version.GitTag=$(git describe --tags --always --dirty)"
 
   build-webui:
     dir: ./webui
@@ -100,7 +100,7 @@ tasks:
       - npm run build
 
   build-docsite:
-    dir: ./bitmagnet.io
+    dir: ./lodestone.dev
     cmds:
       - bundle install
       - bundle exec jekyll build
@@ -119,7 +119,7 @@ tasks:
       PORT: 3334
 
   serve-docsite:
-    dir: ./bitmagnet.io
+    dir: ./lodestone.dev
     cmds:
       - bundle exec jekyll serve --host {{.HOST}} --port {{.PORT}} --livereload
     vars:
@@ -147,7 +147,7 @@ tasks:
         --table=torrent_tags \
         --table=torrents_torrent_sources \
         --table=key_values \
-        bitmagnet \
+        lodestone \
         > export.sql
 
   create-migration:

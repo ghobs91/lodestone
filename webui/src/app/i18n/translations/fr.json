@@ -117,7 +117,7 @@
     "status": "Statut"
   },
   "health": {
-    "bitmagnet_is_status": "bitmagnet est {{status}}",
+    "lodestone_is_status": "lodestone est {{status}}",
     "check_failed_with_error": "Vérification échouée avec erreur",
     "component": "Composant",
     "components": {
@@ -210,11 +210,11 @@
     "zu": "Zoulou"
   },
   "layout": {
-    "bitmagnet_on_service": "bitmagnet sur {{service}}",
+    "lodestone_on_service": "lodestone sur {{service}}",
     "change_theme": "Changer de thème",
     "external_links": "Liens externes",
     "sponsor": "Sponsor",
-    "support_bitmagnet": "Soutenir bitmagnet",
+    "support_lodestone": "Soutenir lodestone",
     "translate": "Traduire"
   },
   "paginator": {
@@ -311,7 +311,7 @@
     "votes_count_n": "{{count}} votes"
   },
   "version": {
-    "bitmagnet_version": "version bitmagnet {{version}}",
+    "lodestone_version": "version lodestone {{version}}",
     "unknown": "inconnu"
   }
 }

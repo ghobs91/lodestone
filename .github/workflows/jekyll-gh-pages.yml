@@ -4,7 +4,7 @@ name: Deploy Jekyll with GitHub Pages dependencies preinstalled
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["bitmagnet.io"]
+    branches: ["lodestone.dev"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -33,7 +33,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.2"
-      - run: cd bitmagnet.io && bundle install && bundle exec jekyll build --destination ../_site
+      - run: cd lodestone.dev && bundle install && bundle exec jekyll build --destination ../_site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 

@@ -13,7 +13,7 @@ import { initializeIcons } from "./app.icons";
   styleUrl: "./app.component.scss",
 })
 export class AppComponent {
-  title = "bitmagnet";
+  title = "lodestone";
   constructor(iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
     initializeIcons(iconRegistry, domSanitizer);
   }

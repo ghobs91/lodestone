@@ -9,7 +9,7 @@ import {
   themes,
 } from "./theme-registry";
 
-const LOCAL_STORAGE_KEY = "bitmagnet-theme";
+const LOCAL_STORAGE_KEY = "lodestone-theme";
 
 @Injectable({ providedIn: "root" })
 export class ThemeManager {
@@ -60,7 +60,7 @@ export class ThemeManager {
     } else {
       this.selectedTheme = theme as ThemeKey;
     }
-    this.document.documentElement.setAttribute("data-bitmagnet-theme", theme);
+    this.document.documentElement.setAttribute("data-lodestone-theme", theme);
     this.selectedThemeSubject.next(this.selectedTheme);
   };
 

@@ -10,7 +10,7 @@ func (s JSONSchema) MarshalJSON() ([]byte, error) {
 	return json.MarshalIndent(map[string]any(s), "", "  ")
 }
 
-const schemaID = "https://bitmagnet.io/schemas/classifier-0.1.json"
+const schemaID = "https://lodestone.dev/schemas/classifier-0.1.json"
 
 func (f features) JSONSchema() JSONSchema {
 	return map[string]any{

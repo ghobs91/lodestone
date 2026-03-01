@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/classifier/classification"
+	"github.com/ghobs91/lodestone/internal/classifier/classification"
 )
 
 func actions(defs ...actionDefinition) feature {

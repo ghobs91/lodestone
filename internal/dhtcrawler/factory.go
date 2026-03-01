@@ -4,17 +4,17 @@ import (
 	"context"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/blocking"
-	"github.com/bitmagnet-io/bitmagnet/internal/concurrency"
-	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
-	"github.com/bitmagnet-io/bitmagnet/internal/database/search"
-	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/client"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/ktable"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/metainfo/banning"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/metainfo/metainforequester"
-	"github.com/bitmagnet-io/bitmagnet/internal/worker"
+	"github.com/ghobs91/lodestone/internal/blocking"
+	"github.com/ghobs91/lodestone/internal/concurrency"
+	"github.com/ghobs91/lodestone/internal/database/dao"
+	"github.com/ghobs91/lodestone/internal/database/search"
+	"github.com/ghobs91/lodestone/internal/lazy"
+	"github.com/ghobs91/lodestone/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/client"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable"
+	"github.com/ghobs91/lodestone/internal/protocol/metainfo/banning"
+	"github.com/ghobs91/lodestone/internal/protocol/metainfo/metainforequester"
+	"github.com/ghobs91/lodestone/internal/worker"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -49,7 +49,7 @@ func New(params Params) Result {
 	var c crawler
 
 	persistedTotal := prometheus.NewCounterVec(prometheus.CounterOpts{
-		Namespace: "bitmagnet",
+		Namespace: "lodestone",
 		Subsystem: "dht_crawler",
 		Name:      "persisted_total",
 		Help:      "A counter of persisted database entities.",

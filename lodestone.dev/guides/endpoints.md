@@ -7,9 +7,9 @@ redirect_from:
   - /endpoints.html
 ---
 
-# **bitmagnet** Endpoints
+# **lodestone** Endpoints
 
-**bitmagnet** exposes functionality on a number of endpoints:
+**lodestone** exposes functionality on a number of endpoints:
 
 - `/` - Redirects to `/webui`
 - `/webui` - Main web user interface

@@ -1,9 +1,9 @@
 package processorfx
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/processor"
-	batchqueue "github.com/bitmagnet-io/bitmagnet/internal/processor/batch/queue"
-	processorqueue "github.com/bitmagnet-io/bitmagnet/internal/processor/queue"
+	"github.com/ghobs91/lodestone/internal/processor"
+	batchqueue "github.com/ghobs91/lodestone/internal/processor/batch/queue"
+	processorqueue "github.com/ghobs91/lodestone/internal/processor/queue"
 	"go.uber.org/fx"
 )
 

@@ -2,7 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { LangDefinition, TranslocoService } from "@jsverse/transloco";
 import { BrowserStorageService } from "../browser-storage/browser-storage.service";
 
-const LOCAL_STORAGE_KEY = "bitmagnet-language";
+const LOCAL_STORAGE_KEY = "lodestone-language";
 
 @Injectable({ providedIn: "root" })
 export class TranslateManager {

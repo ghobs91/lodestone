@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "bitmagnet": {
+    "lodestone": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/bitmagnet",
+            "outputPath": "dist/lodestone",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
@@ -68,10 +68,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "bitmagnet:build:production"
+              "buildTarget": "lodestone:build:production"
             },
             "development": {
-              "buildTarget": "bitmagnet:build:development"
+              "buildTarget": "lodestone:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/metainfo/metainforequester"
+	"github.com/ghobs91/lodestone/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/protocol/metainfo/metainforequester"
 )
 
 const (

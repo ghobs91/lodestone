@@ -1,5 +1,5 @@
 {
-  "$id": "https://bitmagnet.io/schemas/classifier-0.1.json",
+  "$id": "https://lodestone.dev/schemas/classifier-0.1.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,
   "definitions": {
@@ -283,7 +283,7 @@
   },
   "properties": {
     "$schema": {
-      "const": "https://bitmagnet.io/schemas/classifier-0.1.json"
+      "const": "https://lodestone.dev/schemas/classifier-0.1.json"
     },
     "extensions": {
       "additionalProperties": {

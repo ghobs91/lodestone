@@ -1,8 +1,8 @@
 package classifierfx
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/classifier"
-	"github.com/bitmagnet-io/bitmagnet/internal/config/configfx"
+	"github.com/ghobs91/lodestone/internal/classifier"
+	"github.com/ghobs91/lodestone/internal/config/configfx"
 	"go.uber.org/fx"
 )
 

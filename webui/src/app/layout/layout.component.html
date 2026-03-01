@@ -4,7 +4,7 @@
       <h1>
         <a routerLink="torrents">
           <mat-icon svgIcon="magnet"></mat-icon>
-          <span class="name">bitmagnet</span>
+          <span class="name">lodestone</span>
           <app-version />
         </a>
       </h1>
@@ -102,24 +102,24 @@
       <mat-icon svgIcon="external-link" />
     </button>
     <mat-menu #externalLinksMenu="matMenu" class="layout-header-menu">
-      <a mat-menu-item href="https://bitmagnet.io" target="_blank"
-        >bitmagnet.io</a
+      <a mat-menu-item href="https://lodestone.dev" target="_blank"
+        >lodestone.dev</a
       >
       <a mat-menu-item href="https://discord.gg/6mFNszX8qM" target="_blank">{{
-        t("layout.bitmagnet_on_service", { service: "Discord" })
+        t("layout.lodestone_on_service", { service: "Discord" })
       }}</a>
       <a
         mat-menu-item
-        href="https://github.com/bitmagnet-io/bitmagnet"
+        href="https://github.com/ghobs91/lodestone"
         target="_blank"
-        >{{ t("layout.bitmagnet_on_service", { service: "GitHub" }) }}</a
+        >{{ t("layout.lodestone_on_service", { service: "GitHub" }) }}</a
       >
       <a
         mat-menu-item
-        href="https://opencollective.com/bitmagnet"
+        href="https://opencollective.com/lodestone"
         target="_blank"
         >{{
-          t("layout.bitmagnet_on_service", { service: "OpenCollective" })
+          t("layout.lodestone_on_service", { service: "OpenCollective" })
         }}</a
       >
     </mat-menu>
@@ -127,7 +127,7 @@
       <a
         mat-icon-button
         class="button-sponsor"
-        href="https://opencollective.com/bitmagnet"
+        href="https://opencollective.com/lodestone"
         target="_blank"
         [matTooltip]="t('layout.sponsor')"
         ><mat-icon>favorite</mat-icon></a
@@ -136,9 +136,9 @@
       <a
         mat-button
         class="button-sponsor"
-        href="https://opencollective.com/bitmagnet"
+        href="https://opencollective.com/lodestone"
         target="_blank"
-        [matTooltip]="t('layout.support_bitmagnet')"
+        [matTooltip]="t('layout.support_lodestone')"
         ><mat-icon>favorite</mat-icon>{{ t("layout.sponsor") }}</a
       >
     }

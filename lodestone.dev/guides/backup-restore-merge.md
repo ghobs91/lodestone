@@ -1,6 +1,6 @@
 ---
 title: Backup, Restore & Merge
-description: How to backup, restore, merge and share bitmagnet databases
+description: How to backup, restore, merge and share lodestone databases
 parent: Guides
 layout: default
 nav_order: 7
@@ -10,11 +10,11 @@ redirect_from:
 
 # Backup, Restore & Merge
 
-It's a good idea to take periodic backups of the **bitmagnet** database. A system crash might corrupt the database, in which case you could see the dreaded `PANIC: could not locate a valid checkpoint record` when starting Postgres.
+It's a good idea to take periodic backups of the **lodestone** database. A system crash might corrupt the database, in which case you could see the dreaded `PANIC: could not locate a valid checkpoint record` when starting Postgres.
 
-Perhaps you'd like to move your **bitmagnet** installation to a new server, or you'd like to merge the data from two **bitmagnet** installations.
+Perhaps you'd like to move your **lodestone** installation to a new server, or you'd like to merge the data from two **lodestone** installations.
 
-This tutorial will show you how to backup, restore and merge **bitmagnet** databases.
+This tutorial will show you how to backup, restore and merge **lodestone** databases.
 
 {: .note-title }
 
@@ -25,9 +25,9 @@ This tutorial will show you how to backup, restore and merge **bitmagnet** datab
 ## Taking a backup
 
 {: .warning }
-If you intend to import your backup to another **bitmagnet** instance, you should ensure the other instance is the same version. If the other instance is already a higher version, you'll need to upgrade the instance you're backing up from before taking a backup.
+If you intend to import your backup to another **lodestone** instance, you should ensure the other instance is the same version. If the other instance is already a higher version, you'll need to upgrade the instance you're backing up from before taking a backup.
 
-The following command will take a backup of the critical **bitmagnet** data and save it to a file named `export.sql`. (note this is not a full backup of the database which would include creation of tables, indexes etc.). By exporting with the `--data-only` flag the resulting file can be imported into a new or existing installation, after **bitmagnet** has run its migrations to set up the database and tables.
+The following command will take a backup of the critical **lodestone** data and save it to a file named `export.sql`. (note this is not a full backup of the database which would include creation of tables, indexes etc.). By exporting with the `--data-only` flag the resulting file can be imported into a new or existing installation, after **lodestone** has run its migrations to set up the database and tables.
 
 Please refer to [the `pg_dump` documentation](https://www.postgresql.org/docs/current/app-pgdump.html) and ensure to specify the correct values (e.g. `host`, `username` and `password`) for the source database.
 
@@ -50,18 +50,18 @@ pg_dump \
         --table=torrent_tags \
         --table=torrents_torrent_sources \
         --table=key_values \
-        bitmagnet \
+        lodestone \
         > backup.sql
 ```
 
-## Restoring a backup, or merging into another **bitmagnet** instance
+## Restoring a backup, or merging into another **lodestone** instance
 
-First, ensure you have a target **bitmagnet** instance up and running, _of the same version from which the backup was taken_.
+First, ensure you have a target **lodestone** instance up and running, _of the same version from which the backup was taken_.
 
 The following command will import the backup file into the target database, merging the data with any existing data.
 
 Please refer to [the `psql` documentation](https://www.postgresql.org/docs/current/app-psql.html) and ensure to specify the correct values (e.g. `host`, `username` and `password`) for the target database.
 
 ```sh
-psql bitmagnet < backup.sql
+psql lodestone < backup.sql
 ```

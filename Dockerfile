@@ -11,7 +11,7 @@ COPY . /build
 
 WORKDIR /build
 
-RUN go build -ldflags "-s -w -X github.com/bitmagnet-io/bitmagnet/internal/version.GitTag=$(git describe --tags --always --dirty)"
+RUN go build -ldflags "-s -w -X github.com/ghobs91/lodestone/internal/version.GitTag=$(git describe --tags --always --dirty)"
 
 FROM alpine:3.20
 
@@ -20,6 +20,6 @@ RUN apk --update add \
     iproute2-ss \
     && rm -rf /var/cache/apk/*
 
-COPY --from=build /build/bitmagnet /usr/bin/bitmagnet
+COPY --from=build /build/lodestone /usr/bin/lodestone
 
-ENTRYPOINT ["bitmagnet"]
+ENTRYPOINT ["lodestone"]

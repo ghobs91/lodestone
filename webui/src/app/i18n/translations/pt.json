@@ -117,7 +117,7 @@
     "status": "Status"
   },
   "health": {
-    "bitmagnet_is_status": "bitmagnet está {{status}}",
+    "lodestone_is_status": "lodestone está {{status}}",
     "check_failed_with_error": "Verificação falhou com erro",
     "component": "Componente",
     "components": {
@@ -210,11 +210,11 @@
     "zu": "Zulu"
   },
   "layout": {
-    "bitmagnet_on_service": "bitmagnet em {{service}}",
+    "lodestone_on_service": "lodestone em {{service}}",
     "change_theme": "Alterar tema",
     "external_links": "Links externos",
     "sponsor": "Patrocinador",
-    "support_bitmagnet": "Apoiar bitmagnet",
+    "support_lodestone": "Apoiar lodestone",
     "translate": "Traduzir"
   },
   "paginator": {
@@ -311,7 +311,7 @@
     "votes_count_n": "{{count}} votos"
   },
   "version": {
-    "bitmagnet_version": "Versão do bitmagnet {{version}}",
+    "lodestone_version": "Versão do lodestone {{version}}",
     "unknown": "desconhecido"
   }
 }

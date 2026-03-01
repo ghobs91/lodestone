@@ -1,16 +1,16 @@
 package devfx
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/app/cli"
-	"github.com/bitmagnet-io/bitmagnet/internal/app/cli/args"
-	"github.com/bitmagnet-io/bitmagnet/internal/config/configfx"
-	"github.com/bitmagnet-io/bitmagnet/internal/database"
-	"github.com/bitmagnet-io/bitmagnet/internal/database/migrations"
-	"github.com/bitmagnet-io/bitmagnet/internal/database/postgres"
-	"github.com/bitmagnet-io/bitmagnet/internal/dev/app/cmd/gormcmd"
-	"github.com/bitmagnet-io/bitmagnet/internal/dev/app/cmd/migratecmd"
-	"github.com/bitmagnet-io/bitmagnet/internal/logging/loggingfx"
-	"github.com/bitmagnet-io/bitmagnet/internal/validation/validationfx"
+	"github.com/ghobs91/lodestone/internal/app/cli"
+	"github.com/ghobs91/lodestone/internal/app/cli/args"
+	"github.com/ghobs91/lodestone/internal/config/configfx"
+	"github.com/ghobs91/lodestone/internal/database"
+	"github.com/ghobs91/lodestone/internal/database/migrations"
+	"github.com/ghobs91/lodestone/internal/database/postgres"
+	"github.com/ghobs91/lodestone/internal/dev/app/cmd/gormcmd"
+	"github.com/ghobs91/lodestone/internal/dev/app/cmd/migratecmd"
+	"github.com/ghobs91/lodestone/internal/logging/loggingfx"
+	"github.com/ghobs91/lodestone/internal/validation/validationfx"
 	"go.uber.org/fx"
 )
 

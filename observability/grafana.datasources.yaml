@@ -27,7 +27,7 @@ datasources:
     secureJsonData:
       password: postgres
     jsonData:
-      database: bitmagnet
+      database: lodestone
       sslmode: "disable" # disable/require/verify-ca/verify-full
       maxOpenConns: 100 # Grafana v5.4+
       maxIdleConns: 100 # Grafana v5.4+

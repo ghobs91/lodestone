@@ -1,5 +1,5 @@
 syntax = "proto3";
-package bitmagnet;
+package lodestone;
 option go_package = "/internal/protobuf";
 
 message Torrent {

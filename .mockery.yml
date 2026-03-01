@@ -4,18 +4,18 @@ mockname: "{{.InterfaceName}}"
 outpkg: "{{.PackageName}}_mocks"
 filename: "{{.InterfaceName}}.go"
 packages:
-  github.com/bitmagnet-io/bitmagnet/internal/classifier:
+  github.com/ghobs91/lodestone/internal/classifier:
     interfaces:
       LocalSearch:
-  github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/ktable:
+  github.com/ghobs91/lodestone/internal/protocol/dht/ktable:
     interfaces:
       Table:
-  github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/responder:
+  github.com/ghobs91/lodestone/internal/protocol/dht/responder:
     interfaces:
       Limiter:
-  github.com/bitmagnet-io/bitmagnet/internal/tmdb:
+  github.com/ghobs91/lodestone/internal/tmdb:
     interfaces:
       Client:
-  github.com/bitmagnet-io/bitmagnet/internal/torznab:
+  github.com/ghobs91/lodestone/internal/torznab:
     interfaces:
       Client:

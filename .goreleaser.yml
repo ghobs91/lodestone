@@ -3,7 +3,7 @@ before:
     - go mod tidy
 
 builds:
-  - id: bitmagnet
+  - id: lodestone
     env:
       - CGO_ENABLED=0
     goos:
@@ -29,14 +29,14 @@ builds:
       - goos: freebsd
         goarch: arm64
     main: ./main.go
-    binary: bitmagnet
+    binary: lodestone
     ldflags:
-      - "-s -w -X github.com/bitmagnet-io/bitmagnet/internal/version.GitTag={{.Version}}"
+      - "-s -w -X github.com/ghobs91/lodestone/internal/version.GitTag={{.Version}}"
 
 archives:
-  - id: bitmagnet
+  - id: lodestone
     builds:
-      - bitmagnet
+      - lodestone
     format_overrides:
       - goos: windows
         format: zip
@@ -50,15 +50,15 @@ archives:
 release:
   prerelease: auto
   footer: |
-    **Full Changelog**: https://github.com/bitmagnet-io/bitmagnet/compare/{{ .PreviousTag }}...{{ .Tag }}
+    **Full Changelog**: https://github.com/ghobs91/lodestone/compare/{{ .PreviousTag }}...{{ .Tag }}
 
     ## Docker images
 
-    - `docker pull ghcr.io/bitmagnet-io/bitmagnet:{{ .Tag }}`
+    - `docker pull ghcr.io/ghobs91/lodestone:{{ .Tag }}`
 
     ## What to do next?
 
-    - Read the [documentation](https://bitmagnet.io)
+    - Read the [documentation](https://lodestone.dev)
     - Join our [Discord server](https://discord.gg/6mFNszX8qM)
 
 checksum:
@@ -83,11 +83,11 @@ changelog:
       order: 999
 
 nfpms:
-  - package_name: bitmagnet
-    homepage: https://bitmagnet.io
-    maintainer: bitmagnet <packages@bitmagnet.io>
+  - package_name: lodestone
+    homepage: https://lodestone.dev
+    maintainer: lodestone <packages@lodestone.dev>
     description: |-
-      bitmagnet is a self-hosted BitTorrent indexer.
+      lodestone is a self-hosted BitTorrent indexer.
     formats:
       - apk
       - deb

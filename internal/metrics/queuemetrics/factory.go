@@ -1,7 +1,7 @@
 package queuemetrics
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/lazy"
+	"github.com/ghobs91/lodestone/internal/lazy"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

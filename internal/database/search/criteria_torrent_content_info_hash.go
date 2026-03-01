@@ -1,9 +1,9 @@
 package search
 
 import (
-	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/database/query"
+	"github.com/ghobs91/lodestone/internal/model"
+	"github.com/ghobs91/lodestone/internal/protocol"
 )
 
 func TorrentContentInfoHashCriteria(infoHashes ...protocol.ID) query.Criteria {

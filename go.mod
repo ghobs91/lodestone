@@ -1,4 +1,4 @@
-module github.com/bitmagnet-io/bitmagnet
+module github.com/ghobs91/lodestone
 
 go 1.23.6
 

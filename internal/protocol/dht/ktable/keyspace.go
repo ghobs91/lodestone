@@ -3,8 +3,8 @@ package ktable
 import (
 	"errors"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/ktable/btree"
+	"github.com/ghobs91/lodestone/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable/btree"
 )
 
 type keyspace[

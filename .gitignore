@@ -3,8 +3,8 @@
 .direnv
 .idea
 /data
-/bitmagnet
-/bitmagnet.io/_site
+/lodestone
+/lodestone.io/_site
 /export.sql
 dump.rdb
 .jekyll-cache

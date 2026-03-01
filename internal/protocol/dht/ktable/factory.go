@@ -4,7 +4,7 @@ import (
 	"net/netip"
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/ktable/btree"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable/btree"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/fx"
 )
@@ -89,7 +89,7 @@ func New(p Params) Result {
 }
 
 const (
-	namespace = "bitmagnet"
+	namespace = "lodestone"
 	subsystem = "dht_ktable"
 )
 

@@ -2,7 +2,7 @@
 FROM --platform=$BUILDPLATFORM golang:1.23.6-alpine3.20 AS app-builder
 RUN apk add --no-cache git tzdata
 
-ENV SERVICE=bitmagnet
+ENV SERVICE=lodestone
 
 WORKDIR /src
 
@@ -24,17 +24,17 @@ export GOARCH=$TARGETARCH; \
 [[ "$GOARCH" == "arm" ]] && [[ "$TARGETVARIANT" == "v6" ]] && export GOARM=6; \
 [[ "$GOARCH" == "arm" ]] && [[ "$TARGETVARIANT" == "v7" ]] && export GOARM=7; \
 echo $GOARCH $GOOS $GOARM$GOAMD64; \
-go build -ldflags "-s -w -X github.com/bitmagnet-io/bitmagnet/internal/version.GitTag=${VERSION}" -o /build/bitmagnet main.go
+go build -ldflags "-s -w -X github.com/ghobs91/lodestone/internal/version.GitTag=${VERSION}" -o /build/lodestone main.go
 
 # build runner
 FROM alpine:latest AS runner
 
-LABEL org.opencontainers.image.source = "https://github.com/bitmagnet-io/bitmagnet"
+LABEL org.opencontainers.image.source = "https://github.com/ghobs91/lodestone"
 LABEL org.opencontainers.image.licenses = "MIT"
 LABEL org.opencontainers.image.base.name = "alpine:latest"
 
 RUN apk --no-cache add ca-certificates curl tzdata jq iproute2-ss
 
-COPY --link --from=app-builder /build/bitmagnet* /usr/local/bin/
+COPY --link --from=app-builder /build/lodestone* /usr/local/bin/
 
-ENTRYPOINT ["/usr/local/bin/bitmagnet"]
+ENTRYPOINT ["/usr/local/bin/lodestone"]

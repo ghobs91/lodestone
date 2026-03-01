@@ -117,7 +117,7 @@
     "status": "Статус"
   },
   "health": {
-    "bitmagnet_is_status": "bitmagnet {{status}}",
+    "lodestone_is_status": "lodestone {{status}}",
     "check_failed_with_error": "Проверка завершилась с ошибкой",
     "component": "Компонент",
     "components": {
@@ -210,11 +210,11 @@
     "zu": "Зулусский"
   },
   "layout": {
-    "bitmagnet_on_service": "bitmagnet на {{service}}",
+    "lodestone_on_service": "lodestone на {{service}}",
     "change_theme": "Изменить тему",
     "external_links": "Внешние ссылки",
     "sponsor": "Спонсор",
-    "support_bitmagnet": "Поддержать bitmagnet",
+    "support_lodestone": "Поддержать lodestone",
     "translate": "Перевести"
   },
   "paginator": {
@@ -311,7 +311,7 @@
     "votes_count_n": "{{count}} голосов"
   },
   "version": {
-    "bitmagnet_version": "Версия bitmagnet {{version}}",
+    "lodestone_version": "Версия lodestone {{version}}",
     "unknown": "неизвестно"
   }
 }

@@ -35,8 +35,8 @@ func NewDefaultConfig() Config {
 		FileRotator: FileRotatorConfig{
 			Enabled:    false,
 			Level:      "debug",
-			Path:       path.Join(xdg.DataHome, "bitmagnet", "logs"),
-			BaseName:   "bitmagnet",
+			Path:       path.Join(xdg.DataHome, "lodestone", "logs"),
+			BaseName:   "lodestone",
 			MaxAge:     time.Minute * 60,
 			MaxSize:    1_000_000 * 100,
 			BufferSize: 1_000,

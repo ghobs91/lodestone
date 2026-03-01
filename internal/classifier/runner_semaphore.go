@@ -3,8 +3,8 @@ package classifier
 import (
 	"context"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/classifier/classification"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/ghobs91/lodestone/internal/classifier/classification"
+	"github.com/ghobs91/lodestone/internal/model"
 )
 
 type runnerSemaphore struct {

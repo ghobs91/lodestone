@@ -3,8 +3,8 @@ package search
 import (
 	"errors"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/database/query"
-	"github.com/bitmagnet-io/bitmagnet/internal/model"
+	"github.com/ghobs91/lodestone/internal/database/query"
+	"github.com/ghobs91/lodestone/internal/model"
 )
 
 const TorrentFileTypeFacetKey = "file_type"

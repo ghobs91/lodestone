@@ -7,12 +7,12 @@ package resolvers
 import (
 	"context"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/classifier"
-	"github.com/bitmagnet-io/bitmagnet/internal/gql"
-	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel"
-	"github.com/bitmagnet-io/bitmagnet/internal/gql/gqlmodel/gen"
-	"github.com/bitmagnet-io/bitmagnet/internal/processor"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/classifier"
+	"github.com/ghobs91/lodestone/internal/gql"
+	"github.com/ghobs91/lodestone/internal/gql/gqlmodel"
+	"github.com/ghobs91/lodestone/internal/gql/gqlmodel/gen"
+	"github.com/ghobs91/lodestone/internal/processor"
+	"github.com/ghobs91/lodestone/internal/protocol"
 )
 
 // Torrent is the resolver for the torrent field.

@@ -3,9 +3,9 @@ package responder
 import (
 	"time"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/concurrency"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
-	"github.com/bitmagnet-io/bitmagnet/internal/protocol/dht/ktable"
+	"github.com/ghobs91/lodestone/internal/concurrency"
+	"github.com/ghobs91/lodestone/internal/protocol"
+	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -30,7 +30,7 @@ type Result struct {
 }
 
 const (
-	namespace = "bitmagnet"
+	namespace = "lodestone"
 	subsystem = "dht_responder"
 )
 

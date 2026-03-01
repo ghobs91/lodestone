@@ -4,7 +4,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/bitmagnet-io/bitmagnet/internal/lexer"
+	"github.com/ghobs91/lodestone/internal/lexer"
 	"github.com/mozillazg/go-unidecode/table"
 )
 
