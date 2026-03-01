@@ -646,6 +646,18 @@ var file_internal_protobuf_lodestone_proto_rawDesc = []byte{
 	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
+var (
+	file_internal_protobuf_lodestone_proto_rawDescOnce sync.Once
+	file_internal_protobuf_lodestone_proto_rawDescData = file_internal_protobuf_lodestone_proto_rawDesc
+)
+
+func file_internal_protobuf_lodestone_proto_rawDescGZIP() []byte {
+	file_internal_protobuf_lodestone_proto_rawDescOnce.Do(func() {
+		file_internal_protobuf_lodestone_proto_rawDescData = protoimpl.X.CompressGZIP(file_internal_protobuf_lodestone_proto_rawDescData)
+	})
+	return file_internal_protobuf_lodestone_proto_rawDescData
+}
+
 var file_internal_protobuf_lodestone_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_internal_protobuf_lodestone_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_internal_protobuf_lodestone_proto_goTypes = []any{
