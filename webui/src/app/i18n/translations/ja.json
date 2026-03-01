@@ -234,7 +234,8 @@
     "jobs": "ジョブ",
     "queues": "キュー",
     "torrents": "トレント",
-    "visualize": "可視化"
+    "visualize": "可視化",
+    "configure": "Configure"
   },
   "torrents": {
     "classification": "分類",
@@ -313,5 +314,18 @@
   "version": {
     "lodestone_version": "lodestoneバージョン {{version}}",
     "unknown": "不明"
+  },
+  "configure": {
+    "classifier": {
+      "title": "Classifier",
+      "description": "Configure how new and existing torrents are automatically classified and filtered.",
+      "delete_xxx": "Auto-delete adult (XXX) content",
+      "delete_xxx_hint": "Torrents identified as adult content will be automatically removed from the index.",
+      "banned_keywords": "Banned keywords",
+      "banned_keywords_description": "Torrents whose name or file paths match any of these keywords will be automatically deleted.",
+      "add_keyword": "Add keyword",
+      "keyword_placeholder": "keyword..."
+    },
+    "save": "Save settings"
   }
 }

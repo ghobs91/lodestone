@@ -5,16 +5,19 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/ghobs91/lodestone/internal/classifier"
 	"github.com/ghobs91/lodestone/internal/lazy"
 	"github.com/ghobs91/lodestone/internal/model"
 	"github.com/ghobs91/lodestone/internal/processor"
 	"github.com/ghobs91/lodestone/internal/queue/handler"
+	"github.com/ghobs91/lodestone/internal/settings"
 	"go.uber.org/fx"
 )
 
 type Params struct {
 	fx.In
 	Processor lazy.Lazy[processor.Processor]
+	Settings  lazy.Lazy[settings.ClassifierSettingsStore]
 }
 
 type Result struct {
@@ -29,12 +32,27 @@ func New(p Params) Result {
 			if err != nil {
 				return handler.Handler{}, err
 			}
+			settingsStore, err := p.Settings.Get()
+			if err != nil {
+				return handler.Handler{}, err
+			}
 			return handler.New(
 				processor.MessageName,
 				func(ctx context.Context, job model.QueueJob) (err error) {
 					msg := &processor.MessageParams{}
 					if err := json.Unmarshal([]byte(job.Payload), msg); err != nil {
 						return err
+					}
+
+					// Merge stored classifier settings as runtime flags (job-level flags take precedence).
+					cs, settingsErr := settingsStore.Get(ctx)
+					if settingsErr == nil {
+						if msg.ClassifierFlags == nil {
+							msg.ClassifierFlags = make(classifier.Flags)
+						}
+						if _, ok := msg.ClassifierFlags["delete_xxx"]; !ok {
+							msg.ClassifierFlags["delete_xxx"] = cs.DeleteXxx
+						}
 					}
 
 					return pr.Process(ctx, *msg)

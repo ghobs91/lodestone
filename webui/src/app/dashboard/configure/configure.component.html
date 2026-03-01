@@ -1,0 +1,83 @@
+<ng-container *transloco="let t">
+  <app-document-title
+    [parts]="[t('routes.configure'), t('routes.dashboard')]"
+  />
+  <mat-card>
+    <mat-card-content>
+      @if (loading()) {
+        <mat-progress-bar mode="indeterminate" />
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <section class="settings-section">
+            <h3>{{ t("configure.classifier.title") }}</h3>
+            <p class="section-description">
+              {{ t("configure.classifier.description") }}
+            </p>
+
+            <div class="setting-row">
+              <mat-checkbox formControlName="deleteXxx">
+                {{ t("configure.classifier.delete_xxx") }}
+              </mat-checkbox>
+              <p class="setting-hint">
+                {{ t("configure.classifier.delete_xxx_hint") }}
+              </p>
+            </div>
+          </section>
+
+          <mat-divider />
+
+          <section class="settings-section">
+            <h3>{{ t("configure.classifier.banned_keywords") }}</h3>
+            <p class="section-description">
+              {{ t("configure.classifier.banned_keywords_description") }}
+            </p>
+
+            <mat-form-field class="keywords-field" appearance="outline">
+              <mat-label>{{
+                t("configure.classifier.add_keyword")
+              }}</mat-label>
+              <mat-chip-grid #chipGrid>
+                @for (
+                  keyword of bannedKeywordsValue;
+                  track keyword
+                ) {
+                  <mat-chip-row (removed)="removeKeyword(keyword)">
+                    {{ keyword }}
+                    <button matChipRemove [attr.aria-label]="'remove ' + keyword">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip-row>
+                }
+              </mat-chip-grid>
+              <input
+                [matChipInputFor]="chipGrid"
+                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                [matChipInputAddOnBlur]="true"
+                (matChipInputTokenEnd)="addKeyword($event)"
+                [placeholder]="t('configure.classifier.keyword_placeholder')"
+              />
+            </mat-form-field>
+          </section>
+
+          <div class="actions">
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="saving() || form.pristine"
+            >
+              @if (saving()) {
+                <mat-progress-spinner
+                  diameter="20"
+                  mode="indeterminate"
+                  class="spinner-inline"
+                />
+              }
+              {{ t("configure.save") }}
+            </button>
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</ng-container>

@@ -1,0 +1,42 @@
+section.settings-section {
+  padding: 16px 0;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .section-description {
+    margin: 0 0 16px;
+    color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+    font-size: 0.875rem;
+  }
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .setting-hint {
+    margin: 0 0 0 28px;
+    font-size: 0.75rem;
+    color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  }
+}
+
+.keywords-field {
+  width: 100%;
+  max-width: 600px;
+}
+
+.actions {
+  margin-top: 24px;
+
+  .spinner-inline {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+}

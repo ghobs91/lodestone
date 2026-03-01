@@ -25,6 +25,7 @@ import (
 	"github.com/ghobs91/lodestone/internal/protocol/dht/dhtfx"
 	"github.com/ghobs91/lodestone/internal/protocol/metainfo/metainfofx"
 	"github.com/ghobs91/lodestone/internal/queue/queuefx"
+	"github.com/ghobs91/lodestone/internal/settings/settingsfx"
 	"github.com/ghobs91/lodestone/internal/telemetry/telemetryfx"
 	"github.com/ghobs91/lodestone/internal/tmdb/tmdbfx"
 	"github.com/ghobs91/lodestone/internal/torznab/torznabfx"
@@ -53,6 +54,7 @@ func New() fx.Option {
 		metricsfx.New(),
 		processorfx.New(),
 		queuefx.New(),
+		settingsfx.New(),
 		telemetryfx.New(),
 		tmdbfx.New(),
 		torznabfx.New(),

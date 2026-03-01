@@ -40,6 +40,16 @@
               ><mat-icon svgIcon="magnet" />{{ t("routes.torrents") }}</a
             >
           </li>
+          <li>
+            <a
+              mat-button
+              routerLink="configure"
+              routerLinkActive
+              #linkConfigure="routerLinkActive"
+              [class]="linkConfigure.isActive ? 'active' : ''"
+              ><mat-icon>settings</mat-icon>{{ t("routes.configure") }}</a
+            >
+          </li>
         </ul>
       </nav>
     </mat-drawer>

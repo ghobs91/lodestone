@@ -83,6 +83,13 @@ export const routes: Routes = [
             (c) => c.TorrentsDashboardComponent,
           ),
       },
+      {
+        path: "configure",
+        loadComponent: () =>
+          import("./dashboard/configure/configure.component").then(
+            (c) => c.ConfigureComponent,
+          ),
+      },
     ],
   },
   {
