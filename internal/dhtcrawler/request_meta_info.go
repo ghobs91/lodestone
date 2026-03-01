@@ -5,9 +5,17 @@ import (
 	"errors"
 	"net/netip"
 	"sync"
+	"time"
 
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol/metainfo/metainforequester"
+)
+
+const (
+	// maxParallelPeers is the number of peers to request metadata from concurrently.
+	maxParallelPeers = 5
+	// perPeerTimeout prevents a single slow peer from blocking the entire request.
+	perPeerTimeout = 10 * time.Second
 )
 
 func (c *crawler) runRequestMetaInfo(ctx context.Context) {
@@ -31,28 +39,65 @@ func (c *crawler) doRequestMetaInfo(
 	hash protocol.ID,
 	peers []netip.AddrPort,
 ) (metainforequester.Response, error) {
-	var errs []error
+	// Race up to maxParallelPeers concurrently, accepting the first successful response.
+	raceCtx, raceCancel := context.WithCancel(ctx)
+	defer raceCancel()
 
-	errsMutex := sync.Mutex{}
-	addErr := func(err error) {
-		errsMutex.Lock()
-		errs = append(errs, err)
-		errsMutex.Unlock()
+	type result struct {
+		resp metainforequester.Response
+		err  error
 	}
 
+	resultCh := make(chan result, len(peers))
+
+	var wg sync.WaitGroup
+
+	sem := make(chan struct{}, maxParallelPeers)
+
 	for _, p := range peers {
-		res, err := c.metainfoRequester.Request(ctx, hash, p)
-		if err != nil {
-			addErr(err)
+		select {
+		case <-raceCtx.Done():
+			break
+		case sem <- struct{}{}:
+		}
+
+		wg.Add(1)
+
+		go func(peer netip.AddrPort) {
+			defer wg.Done()
+			defer func() { <-sem }()
+
+			peerCtx, peerCancel := context.WithTimeout(raceCtx, perPeerTimeout)
+			defer peerCancel()
+
+			res, err := c.metainfoRequester.Request(peerCtx, hash, peer)
+			resultCh <- result{resp: res, err: err}
+		}(p)
+	}
+
+	// Close resultCh when all goroutines complete.
+	go func() {
+		wg.Wait()
+		close(resultCh)
+	}()
+
+	var errs []error
+
+	for r := range resultCh {
+		if r.err != nil {
+			errs = append(errs, r.err)
 			continue
 		}
 
-		if banErr := c.banningChecker.Check(res.Info); banErr != nil {
+		if banErr := c.banningChecker.Check(r.resp.Info); banErr != nil {
 			_ = c.blockingManager.Block(ctx, []protocol.ID{hash}, false)
 			return metainforequester.Response{}, banErr
 		}
 
-		return res, nil
+		// First successful response wins; cancel remaining peers.
+		raceCancel()
+
+		return r.resp, nil
 	}
 
 	return metainforequester.Response{}, errors.Join(errs...)
