@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"time"
 
+	"github.com/bitmagnet-io/bitmagnet/internal/database/dao"
 	"github.com/bitmagnet-io/bitmagnet/internal/model"
 	"github.com/bitmagnet-io/bitmagnet/internal/protocol"
 )
@@ -57,21 +58,25 @@ func (c *crawler) runInfoHashTriage(ctx context.Context) {
 			}
 
 			var result []*triageResult
-			if queryErr := c.dao.Torrent.WithContext(ctx).Select(
-				c.dao.Torrent.InfoHash,
-				c.dao.Torrent.FilesStatus,
-				c.dao.Torrent.FilesCount,
-				c.dao.TorrentsTorrentSource.Seeders,
-				c.dao.TorrentsTorrentSource.Leechers,
-				c.dao.TorrentsTorrentSource.UpdatedAt,
-			).LeftJoin(
-				c.dao.TorrentsTorrentSource,
-				c.dao.Torrent.InfoHash.EqCol(c.dao.TorrentsTorrentSource.InfoHash),
-				c.dao.TorrentsTorrentSource.Source.Eq("dht"),
-			).Where(
-				c.dao.Torrent.InfoHash.In(valuers...),
-			).UnderlyingDB().Find(&result).Error; queryErr != nil {
-				c.logger.Errorf("failed to search existing torrents: %s", queryErr.Error())
+			// Wrap the lookup in a transaction to get a consistent snapshot,
+			// avoiding races with the persist pipeline committing new torrents.
+			if txErr := c.dao.Transaction(func(tx *dao.Query) error {
+				return tx.Torrent.WithContext(ctx).Select(
+					tx.Torrent.InfoHash,
+					tx.Torrent.FilesStatus,
+					tx.Torrent.FilesCount,
+					tx.TorrentsTorrentSource.Seeders,
+					tx.TorrentsTorrentSource.Leechers,
+					tx.TorrentsTorrentSource.UpdatedAt,
+				).LeftJoin(
+					tx.TorrentsTorrentSource,
+					tx.Torrent.InfoHash.EqCol(tx.TorrentsTorrentSource.InfoHash),
+					tx.TorrentsTorrentSource.Source.Eq("dht"),
+				).Where(
+					tx.Torrent.InfoHash.In(valuers...),
+				).UnderlyingDB().Find(&result).Error
+			}); txErr != nil {
+				c.logger.Errorf("failed to search existing torrents: %s", txErr.Error())
 				break
 			}
 
