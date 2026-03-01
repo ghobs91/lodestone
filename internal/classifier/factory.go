@@ -44,7 +44,7 @@ func New(params Params) Result {
 			dependencies: dependencies{
 				search: localSearchSemaphore{
 					search:    localSearch{s},
-					semaphore: make(chan struct{}, 1),
+					semaphore: make(chan struct{}, params.Config.SearchConcurrency),
 				},
 				tmdbClient: tmdbClient,
 			},
