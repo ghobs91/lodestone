@@ -18,6 +18,7 @@ func newError(msg string) error {
 var (
 	ErrUnauthorized = newError("401 Unauthorized")
 	ErrNotFound     = newError("404 Not Found")
+	ErrRateLimited  = newError("429 Too Many Requests")
 )
 
 func (c client) ValidateAPIKey(ctx context.Context) error {

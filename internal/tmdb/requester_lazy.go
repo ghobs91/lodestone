@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -64,13 +66,33 @@ func newRequester(ctx context.Context, config Config, logger *zap.SugaredLogger)
 						resty: resty.New().
 							SetBaseURL(config.BaseURL).
 							SetQueryParam("api_key", config.APIKey).
-							SetRetryCount(3).
-							SetRetryWaitTime(2 * time.Second).
-							SetRetryMaxWaitTime(20 * time.Second).
+							SetRetryCount(5).
+							SetRetryWaitTime(5 * time.Second).
+							SetRetryMaxWaitTime(120 * time.Second).
 							SetTimeout(10 * time.Second).
 							EnableTrace().
-							SetLogger(logger),
+							SetLogger(logger).
+							AddRetryCondition(func(r *resty.Response, _ error) bool {
+								return r != nil && r.StatusCode() == http.StatusTooManyRequests
+							}).
+							SetRetryAfter(func(_ *resty.Client, r *resty.Response) (time.Duration, error) {
+								if r == nil {
+									return 0, nil
+								}
+								if retryAfter := r.Header().Get("Retry-After"); retryAfter != "" {
+									if secs, err := strconv.Atoi(retryAfter); err == nil {
+										return time.Duration(secs) * time.Second, nil
+									}
+									if t, err := http.ParseTime(retryAfter); err == nil {
+										if d := time.Until(t); d > 0 {
+											return d, nil
+										}
+									}
+								}
+								return 0, nil
+							}),
 					},
+
 					limiter: rate.NewLimiter(rate.Every(config.RateLimit), config.RateLimitBurst),
 				},
 				semaphore: semaphore.NewWeighted(2),

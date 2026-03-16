@@ -32,6 +32,8 @@ func (r requester) Request(
 			err = ErrUnauthorized
 		case http.StatusNotFound:
 			err = ErrNotFound
+		case http.StatusTooManyRequests:
+			err = ErrRateLimited
 		default:
 			err = newError(res.Status())
 		}
