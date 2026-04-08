@@ -66,9 +66,9 @@ func newRequester(ctx context.Context, config Config, logger *zap.SugaredLogger)
 						resty: resty.New().
 							SetBaseURL(config.BaseURL).
 							SetQueryParam("api_key", config.APIKey).
-							SetRetryCount(5).
+							SetRetryCount(2).
 							SetRetryWaitTime(5 * time.Second).
-							SetRetryMaxWaitTime(120 * time.Second).
+							SetRetryMaxWaitTime(30 * time.Second).
 							SetTimeout(10 * time.Second).
 							EnableTrace().
 							SetLogger(logger).
@@ -105,14 +105,12 @@ func newRequester(ctx context.Context, config Config, logger *zap.SugaredLogger)
 	err := client{r}.ValidateAPIKey(ctx)
 	if errors.Is(err, ErrUnauthorized) {
 		if config.APIKey == defaultTmdbAPIKey {
+			logger.Errorw("default TMDB API key is invalid; TMDB features will be unavailable")
 			return r, fmt.Errorf("default api key is invalid: %w", err)
 		}
 
-		logger.Errorw("invalid api key, falling back to default", "error", err)
-
-		config.APIKey = defaultTmdbAPIKey
-
-		return newRequester(ctx, config, logger)
+		logger.Errorw("configured TMDB API key is invalid; TMDB features will be unavailable", "error", err)
+		return r, fmt.Errorf("configured api key is invalid: %w", err)
 	}
 
 	return r, err

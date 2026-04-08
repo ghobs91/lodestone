@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/ghobs91/lodestone/internal/blocking"
 	"github.com/ghobs91/lodestone/internal/classifier"
@@ -14,6 +15,7 @@ import (
 	"github.com/ghobs91/lodestone/internal/database/search"
 	"github.com/ghobs91/lodestone/internal/model"
 	"github.com/ghobs91/lodestone/internal/protocol"
+	"golang.org/x/sync/semaphore"
 	"gorm.io/gen/field"
 	"gorm.io/gorm/clause"
 )
@@ -100,11 +102,22 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 		errs = append(errs, MissingHashesError{InfoHashes: failedHashes})
 	}
 
+	// Limit concurrent classification goroutines to avoid overwhelming
+	// external APIs (TMDB) and the local CPU with large batches.
+	const maxConcurrentClassify = 10
+	sem := semaphore.NewWeighted(maxConcurrentClassify)
+
 	for _, torrent := range searchResult.Torrents {
 		wg.Add(1)
 
+		if err := sem.Acquire(ctx, 1); err != nil {
+			wg.Done()
+			break
+		}
+
 		go func(torrent model.Torrent) {
 			defer wg.Done()
+			defer sem.Release(1)
 
 			thisDeleteIDs := make(map[string]struct{}, len(torrent.Contents))
 			foundMatch := false
@@ -163,20 +176,27 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 			return errors.Join(errs...)
 		}
 
-		republishJob, republishJobErr := NewQueueJob(MessageParams{
-			InfoHashes:         failedHashes,
-			ClassifyMode:       params.ClassifyMode,
-			ClassifierWorkflow: workflowName,
-			ClassifierFlags:    params.ClassifierFlags,
-		})
-		if republishJobErr != nil {
-			return errors.Join(append(errs, republishJobErr)...)
-		}
+		// Only re-enqueue if we haven't exceeded the maximum re-enqueue depth.
+		// This prevents an infinite cycle where the same hashes keep failing
+		// and being re-enqueued as brand-new jobs (resetting the retry counter
+		// each time).
+		if params.ReenqueueDepth < MaxReenqueueDepth {
+			republishJob, republishJobErr := NewQueueJob(MessageParams{
+				InfoHashes:         failedHashes,
+				ClassifyMode:       params.ClassifyMode,
+				ClassifierWorkflow: workflowName,
+				ClassifierFlags:    params.ClassifierFlags,
+				ReenqueueDepth:     params.ReenqueueDepth + 1,
+			}, model.QueueJobDelayBy(reenqueueDelay(params.ReenqueueDepth)))
+			if republishJobErr != nil {
+				return errors.Join(append(errs, republishJobErr)...)
+			}
 
-		if err := c.dao.QueueJob.WithContext(ctx).Clauses(clause.OnConflict{
-			DoNothing: true,
-		}).Create(&republishJob); err != nil {
-			return errors.Join(append(errs, err)...)
+			if err := c.dao.QueueJob.WithContext(ctx).Clauses(clause.OnConflict{
+				DoNothing: true,
+			}).Create(&republishJob); err != nil {
+				return errors.Join(append(errs, err)...)
+			}
 		}
 	}
 
@@ -190,6 +210,20 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 		deleteInfoHashes: infoHashesToDelete,
 		addTags:          tagsToAdd,
 	})
+}
+
+// reenqueueDelay returns an escalating delay for re-enqueued partial-failure
+// jobs so they don't form a tight retry loop when an external dependency
+// (e.g. TMDB) is persistently broken.
+func reenqueueDelay(currentDepth int) time.Duration {
+	switch currentDepth {
+	case 0:
+		return 30 * time.Second
+	case 1:
+		return 5 * time.Minute
+	default:
+		return 15 * time.Minute
+	}
 }
 
 func newTorrentContent(t model.Torrent, c classification.Result) model.TorrentContent {

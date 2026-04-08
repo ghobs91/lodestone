@@ -185,7 +185,7 @@ type serverHandler struct {
 }
 
 func (h *serverHandler) start(ctx context.Context) {
-	checkTicker := time.NewTicker(1)
+	checkTicker := time.NewTicker(h.CheckInterval)
 
 	for {
 		select {
@@ -210,10 +210,10 @@ func (h *serverHandler) start(ctx context.Context) {
 			go func() {
 				defer h.sem.Release(1)
 				jobID, _, err := h.handleJob(ctx)
-				// if a job was found, we should check straight away for another job,
-				// otherwise we wait for the check interval
+				// if a job was found, check again shortly (but not instantly)
+				// to drain any backlog without hot-spinning
 				if err == nil && jobID != "" {
-					checkTicker.Reset(1)
+					checkTicker.Reset(100 * time.Millisecond)
 				}
 			}()
 		}

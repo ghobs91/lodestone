@@ -19,11 +19,20 @@ const (
 	ClassifyModeRematch
 )
 
+// MaxReenqueueDepth is the maximum number of times failed hashes from a
+// partially-successful batch may be re-enqueued as a new job. Once this depth
+// is reached the remaining failures are simply dropped (the queue-level retry
+// mechanism still applies to each individual job).
+const MaxReenqueueDepth = 2
+
 type MessageParams struct {
 	ClassifyMode       ClassifyMode     `json:"ClassifyMode,omitempty"`
 	ClassifierWorkflow string           `json:"ClassifierWorkflow,omitempty"`
 	ClassifierFlags    classifier.Flags `json:"ClassifierFlags,omitempty"`
 	InfoHashes         []protocol.ID    `json:"InfoHashes"`
+	// ReenqueueDepth tracks how many times this job's failed hashes have been
+	// split off and re-enqueued. Zero for the original job.
+	ReenqueueDepth int `json:"ReenqueueDepth,omitempty"`
 }
 
 func NewQueueJob(msg MessageParams, options ...model.QueueJobOption) (model.QueueJob, error) {
