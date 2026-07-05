@@ -2,14 +2,15 @@ package queue
 
 import (
 	"math"
-	"math/rand"
+	"math/rand/v2"
 	"time"
 )
 
+var globalRand = rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), 0))
+
 // RandInt returns a random integer up to max
 func RandInt(maxValue int) int {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return r.Intn(maxValue)
+	return globalRand.IntN(maxValue)
 }
 
 // CalculateBackoff calculates the number of seconds to back off before the next retry
