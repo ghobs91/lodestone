@@ -40,13 +40,23 @@ func (i *keyedLimiter) Wait(ctx context.Context, key string) error {
 }
 
 func (i *keyedLimiter) getLimiter(key string) *rate.Limiter {
-	i.mu.Lock()
-
+	// Fast path: try a read lock first for the common cache-hit case.
+	i.mu.RLock()
 	l, ok := i.lru.Get(key)
-	if !ok {
-		l = rate.NewLimiter(i.rl, i.burst)
-		i.lru.Add(key, l)
+	i.mu.RUnlock()
+	if ok {
+		return l
 	}
+
+	// Slow path: write lock only when we need to insert a new limiter.
+	i.mu.Lock()
+	// Double-check after acquiring the write lock.
+	if l, ok = i.lru.Get(key); ok {
+		i.mu.Unlock()
+		return l
+	}
+	l = rate.NewLimiter(i.rl, i.burst)
+	i.lru.Add(key, l)
 	i.mu.Unlock()
 
 	return l

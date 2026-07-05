@@ -15,7 +15,7 @@ type batchingChannel[T any] struct {
 	buffer       []T
 	maxBatchSize int
 	maxWaitTime  time.Duration
-	ticker       *time.Ticker
+	timer        *time.Timer
 }
 
 func NewBatchingChannel[T any](capacity int, maxBatchSize int, maxWaitTime time.Duration) BatchingChannel[T] {
@@ -24,7 +24,7 @@ func NewBatchingChannel[T any](capacity int, maxBatchSize int, maxWaitTime time.
 		output:       make(chan []T, 1),
 		maxBatchSize: maxBatchSize,
 		maxWaitTime:  maxWaitTime,
-		ticker:       time.NewTicker(maxWaitTime),
+		timer:        time.NewTimer(maxWaitTime),
 	}
 	go ch.batch()
 
@@ -40,35 +40,56 @@ func (ch *batchingChannel[T]) Out() <-chan []T {
 }
 
 func (ch *batchingChannel[T]) batch() {
-	var next T
-
-	var ok bool
-
 	defer close(ch.output)
 
 	for {
 		select {
-		case next, ok = <-ch.input:
+		case next, ok := <-ch.input:
 			if !ok {
-				break
+				// Drain remaining buffer before exiting.
+				if len(ch.buffer) > 0 {
+					ch.flushLocked()
+				}
+				return
 			}
 
 			ch.buffer = append(ch.buffer, next)
 			if len(ch.buffer) >= ch.maxBatchSize {
-				ch.flush()
+				// Stop the timer early — we're flushing now due to size.
+				if !ch.stopTimer() {
+					// Timer already fired, drain the channel so we don't
+					// get a spurious wake-up on the next select iteration.
+					<-ch.timer.C
+				}
+				ch.flushLocked()
 			}
-		case <-ch.ticker.C:
+		case <-ch.timer.C:
 			if len(ch.buffer) > 0 {
-				ch.flush()
+				ch.flushLocked()
 			}
+			// Restart the timer for the next interval.
+			ch.resetTimer()
 		}
 	}
 }
 
-func (ch *batchingChannel[T]) flush() {
-	ch.ticker.Stop()
+// stopTimer stops the timer and returns true if the call actually stopped it.
+// Returns false if the timer has already fired (and the channel needs draining).
+func (ch *batchingChannel[T]) stopTimer() bool {
+	if !ch.timer.Stop() {
+		return false
+	}
+	return true
+}
+
+// resetTimer resets the timer for another maxWaitTime interval.
+// Must only be called after the timer channel has been drained or the timer was stopped.
+func (ch *batchingChannel[T]) resetTimer() {
+	ch.timer.Reset(ch.maxWaitTime)
+}
+
+func (ch *batchingChannel[T]) flushLocked() {
 	batch := ch.buffer
 	ch.buffer = nil
-	ch.ticker.Reset(ch.maxWaitTime)
 	ch.output <- batch
 }
