@@ -162,105 +162,65 @@ func (gq *genericQuery[T]) doItems() {
 	if !gq.builder.hasZeroLimit() || gq.builder.needsNextPage() {
 		var finalItems []T
 
-		doneChan := make(chan error)
+		if gq.builder.shouldTryCteStrategy() {
+			// Try the CTE strategy first — it is bounded by LIMIT and
+			// typically faster for filtered/faceted queries with small
+			// result sets.  Only fall back to the default strategy when
+			// the CTE strategy hits the stopping point (large result set).
+			stoppingPoint := 50_000
 
-		raceCtx, raceCancel := context.WithCancel(gq.ctx)
-		defer raceCancel()
+			sqCte, sqCteErr := gq.newSubQuery(gq.ctx, true)
+			if sqCteErr == nil {
+				sql := dao.ToSQL(sqCte.UnderlyingDB()) + " LIMIT " + strconv.Itoa(stoppingPoint)
 
-		mtx := sync.Mutex{}
-		done := func(items []T, err error) {
-			mtx.Lock()
-			defer mtx.Unlock()
+				cte := gq.factory(gq.ctx, gq.daoQ).UnderlyingDB().Clauses(
+					exclause.NewWith("cte", sql, true),
+					exclause.NewWith("cte_count", "SELECT COUNT(*) AS total_count FROM cte", true),
+				).Table("cte").Where("(SELECT MAX(total_count) FROM cte_count) < " + strconv.Itoa(stoppingPoint))
 
-			if finalItems != nil || raceCtx.Err() != nil {
-				return
+				if postErr := gq.builder.applyPost(cte); postErr == nil {
+					var cteItems []T
+					if scanErr := cte.Scan(&cteItems).Error; scanErr == nil {
+						if len(cteItems) > 0 {
+							finalItems = cteItems
+						} else {
+							// Distinguish "no matching rows" from
+							// "stopping point reached".
+							exists, existsErr := gq.checkExists(gq.ctx)
+							if existsErr != nil {
+								gq.addError(existsErr)
+								return
+							}
+							if !exists {
+								// Truly no matches — empty result is correct.
+								finalItems = cteItems
+							}
+							// else: stopping point reached, fall through
+							// to the default strategy.
+						}
+					}
+				}
 			}
-
-			if err == nil {
-				// copy items slice to avoid modifying cached results
-				finalItems = append([]T{}, items...)
-			}
-			doneChan <- err
 		}
-		// start the default strategy
-		go func() {
-			sq, sqErr := gq.newSubQuery(raceCtx, true)
+
+		// If CTE didn't produce results (either not applicable or stopping
+		// point reached), run the default strategy.
+		if finalItems == nil {
+			sq, sqErr := gq.newSubQuery(gq.ctx, true)
 			if sqErr != nil {
-				done(nil, sqErr)
+				gq.addError(sqErr)
 				return
 			}
 
 			if postErr := gq.builder.applyPost(sq.UnderlyingDB()); postErr != nil {
-				done(nil, postErr)
+				gq.addError(postErr)
 				return
 			}
 
-			var items []T
-			if txErr := sq.UnderlyingDB().Find(&items).Error; txErr != nil {
-				done(nil, txErr)
+			if txErr := sq.UnderlyingDB().Find(&finalItems).Error; txErr != nil {
+				gq.addError(txErr)
 				return
 			}
-
-			done(items, nil)
-		}()
-
-		if gq.builder.shouldTryCteStrategy() {
-			// start the CTE strategy
-			go func() {
-				stoppingPoint := 50_000
-
-				sqCte, sqCteErr := gq.newSubQuery(raceCtx, true)
-				if sqCteErr != nil {
-					done(nil, sqCteErr)
-					return
-				}
-
-				sql := dao.ToSQL(sqCte.UnderlyingDB()) + " LIMIT " + strconv.Itoa(stoppingPoint)
-
-				cte := gq.factory(raceCtx, gq.daoQ).UnderlyingDB().Clauses(
-					exclause.NewWith("cte", sql, true),
-					exclause.NewWith("cte_count", "SELECT COUNT(*) AS total_count FROM cte", true),
-				).Table("cte").Where("(SELECT MAX(total_count) FROM cte_count) < " + strconv.Itoa(stoppingPoint))
-				if postErr := gq.builder.applyPost(cte); postErr != nil {
-					done(nil, postErr)
-					return
-				}
-
-				var items []T
-				if scanErr := cte.Scan(&items).Error; scanErr != nil {
-					done(nil, scanErr)
-					return
-				}
-
-				if len(items) == 0 {
-					// if no items are returned, we need a further check
-					// to distinguish between stopping point reached and no matching items
-					exists, existsErr := gq.checkExists(raceCtx)
-					if existsErr != nil {
-						done(nil, existsErr)
-						return
-					}
-
-					if exists {
-						// the stopping point was reached, so return without calling `done`
-						return
-					}
-				}
-
-				done(items, nil)
-			}()
-		}
-		select {
-		case doneErr := <-doneChan:
-			raceCancel()
-
-			if doneErr != nil {
-				gq.addError(doneErr)
-				return
-			}
-		case <-raceCtx.Done():
-			gq.addError(raceCtx.Err())
-			return
 		}
 
 		if gq.builder.hasNextPage(len(finalItems)) {
