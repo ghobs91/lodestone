@@ -19,6 +19,9 @@
     "i18n:find": "transloco-keys-manager find"
   },
   "private": true,
+  "overrides": {
+    "@angular/compiler": "$@angular/compiler"
+  },
   "dependencies": {
     "@angular/animations": "^18.2.8",
     "@angular/cdk": "^18.0.2",
@@ -58,7 +61,7 @@
     "@graphql-codegen/typescript": "^4.1.0",
     "@graphql-codegen/typescript-apollo-angular": "^4.0.0",
     "@graphql-codegen/typescript-operations": "^4.3.0",
-    "@jsverse/transloco-keys-manager": "^5.1.0",
+    "@jsverse/transloco-keys-manager": "^6.2.2",
     "@types/jasmine": "~5.1.4",
     "@typescript-eslint/eslint-plugin": "^8.8.1",
     "@typescript-eslint/parser": "^8.8.1",
