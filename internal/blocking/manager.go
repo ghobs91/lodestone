@@ -23,22 +23,24 @@ type Manager interface {
 }
 
 type manager struct {
-	mutex         sync.Mutex
+	mu            sync.Mutex
 	pool          *pgxpool.Pool
 	buffer        map[protocol.ID]struct{}
 	filter        *bloom.StableBloomFilter
+	filterLoaded  bool
 	maxBufferSize int
 	lastFlushedAt time.Time
 	maxFlushWait  time.Duration
 }
 
 func (m *manager) Filter(ctx context.Context, hashes []protocol.ID) ([]protocol.ID, error) {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
-	if m.filter == nil || m.shouldFlush() {
-		if flushErr := m.flush(ctx); flushErr != nil {
-			return nil, flushErr
+	// Lazy-load the bloom filter from the database on first use.
+	if !m.filterLoaded {
+		if loadErr := m.loadFilter(ctx); loadErr != nil {
+			return nil, loadErr
 		}
 	}
 
@@ -49,7 +51,7 @@ func (m *manager) Filter(ctx context.Context, hashes []protocol.ID) ([]protocol.
 			continue
 		}
 
-		if m.filter.Test(hash[:]) {
+		if m.filter != nil && m.filter.Test(hash[:]) {
 			continue
 		}
 
@@ -60,15 +62,22 @@ func (m *manager) Filter(ctx context.Context, hashes []protocol.ID) ([]protocol.
 }
 
 func (m *manager) Block(ctx context.Context, hashes []protocol.ID, flush bool) error {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	// Lazy-load on first use.
+	if !m.filterLoaded {
+		if loadErr := m.loadFilter(ctx); loadErr != nil {
+			return loadErr
+		}
+	}
 
 	for _, hash := range hashes {
 		m.buffer[hash] = struct{}{}
 	}
 
 	if flush || m.shouldFlush() {
-		if flushErr := m.flush(ctx); flushErr != nil {
+		if flushErr := m.persist(ctx); flushErr != nil {
 			return flushErr
 		}
 	}
@@ -77,20 +86,71 @@ func (m *manager) Block(ctx context.Context, hashes []protocol.ID, flush bool) e
 }
 
 func (m *manager) Flush(ctx context.Context) error {
-	m.mutex.Lock()
-	defer m.mutex.Unlock()
+	m.mu.Lock()
+	defer m.mu.Unlock()
 
 	if len(m.buffer) == 0 {
 		return nil
 	}
 
-	return m.flush(ctx)
+	return m.persist(ctx)
 }
 
 const blockedTorrentsBloomFilterKey = "blocked_torrents"
 
-func (m *manager) flush(ctx context.Context) error {
+// loadFilter reads the bloom filter from PostgreSQL Large Objects on first use.
+// This is separated from persist so that Filter (read-only) doesn't trigger I/O.
+func (m *manager) loadFilter(ctx context.Context) error {
+	tx, err := m.pool.BeginTx(ctx, pgx.TxOptions{
+		AccessMode: pgx.ReadOnly,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to begin transaction for bloom filter load: %w", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	bf := bloom.NewDefaultStableBloomFilter()
+
+	var nullOid sql.NullInt32
+	err = tx.QueryRow(ctx, "SELECT oid FROM bloom_filters WHERE key = $1", blockedTorrentsBloomFilterKey).
+		Scan(&nullOid)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return fmt.Errorf("failed to query bloom filter oid: %w", err)
+	}
+
+	if nullOid.Valid {
+		lobs := tx.LargeObjects()
+		obj, openErr := lobs.Open(ctx, uint32(nullOid.Int32), pgx.LargeObjectModeRead)
+		if openErr != nil {
+			return fmt.Errorf("failed to open large object for reading: %w", openErr)
+		}
+
+		_, readErr := bf.ReadFrom(obj)
+		obj.Close()
+
+		if readErr != nil {
+			return fmt.Errorf("failed to read bloom filter: %w", readErr)
+		}
+	}
+
+	if commitErr := tx.Commit(ctx); commitErr != nil {
+		return fmt.Errorf("failed to commit bloom filter load: %w", commitErr)
+	}
+
+	m.filter = bf
+	m.filterLoaded = true
+	return nil
+}
+
+// persist writes any buffered blocked hashes to the database and updates the
+// persisted bloom filter. This is only called from Block (when the buffer is
+// full) or from Flush (explicit/manual).
+func (m *manager) persist(ctx context.Context) error {
 	hashes := slices.Collect(maps.Keys(m.buffer))
+	if len(hashes) == 0 && m.filter != nil {
+		// Nothing to persist and filter already loaded — no-op.
+		return nil
+	}
 
 	tx, err := m.pool.BeginTx(ctx, pgx.TxOptions{
 		AccessMode: pgx.ReadWrite,
@@ -98,10 +158,7 @@ func (m *manager) flush(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-
-	defer func() {
-		_ = tx.Rollback(ctx)
-	}()
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	if len(hashes) > 0 {
 		_, err = tx.Exec(ctx, "DELETE FROM torrents WHERE info_hash = any($1)", hashes)
@@ -110,51 +167,40 @@ func (m *manager) flush(ctx context.Context) error {
 		}
 	}
 
-	bf := bloom.NewDefaultStableBloomFilter()
+	// Use the in-memory filter if available (it already contains previously-
+	// blocked hashes), otherwise start fresh. Add any buffered hashes.
+	var bf *bloom.StableBloomFilter
+	if m.filter != nil {
+		bf = m.filter
+	} else {
+		bf = bloom.NewDefaultStableBloomFilter()
+	}
+	for _, hash := range hashes {
+		bf.Add(hash[:])
+	}
 
 	lobs := tx.LargeObjects()
 
 	found := false
-
 	var oid uint32
-
 	var nullOid sql.NullInt32
 
 	err = tx.QueryRow(ctx, "SELECT oid FROM bloom_filters WHERE key = $1", blockedTorrentsBloomFilterKey).
 		Scan(&nullOid)
 	if err == nil {
 		found = true
-
 		if nullOid.Valid {
 			oid = uint32(nullOid.Int32)
-
-			obj, err := lobs.Open(ctx, oid, pgx.LargeObjectModeRead)
-			if err != nil {
-				return fmt.Errorf("failed to open large object for reading: %w", err)
-			}
-
-			_, err = bf.ReadFrom(obj)
-			obj.Close()
-
-			if err != nil {
-				return fmt.Errorf("failed to read current bloom filter: %w", err)
-			}
 		}
 	} else if !errors.Is(err, pgx.ErrNoRows) {
 		return fmt.Errorf("failed to get bloom filter object ID: %w", err)
 	}
 
 	if oid == 0 {
-		// Create a new Large Object.
-		// We pass 0, so the DB can pick an available oid for us.
 		oid, err = lobs.Create(ctx, 0)
 		if err != nil {
 			return fmt.Errorf("failed to create large object: %w", err)
 		}
-	}
-
-	for _, hash := range hashes {
-		bf.Add(hash[:])
 	}
 
 	obj, err := lobs.Open(ctx, oid, pgx.LargeObjectModeWrite)
@@ -166,6 +212,7 @@ func (m *manager) flush(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to write to large object: %w", err)
 	}
+	obj.Close()
 
 	now := time.Now()
 	if !found {
@@ -184,9 +231,8 @@ func (m *manager) flush(ctx context.Context) error {
 		}
 	}
 
-	err = tx.Commit(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
+	if commitErr := tx.Commit(ctx); commitErr != nil {
+		return fmt.Errorf("failed to commit transaction: %w", commitErr)
 	}
 
 	m.buffer = make(map[protocol.ID]struct{})
