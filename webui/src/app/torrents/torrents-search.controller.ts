@@ -133,7 +133,10 @@ export class TorrentsSearchController {
 
   private fallbackOrderBy: OrderBySelection;
 
-  constructor(initialControls: TorrentSearchControls, fallbackOrderBy?: OrderBySelection) {
+  constructor(
+    initialControls: TorrentSearchControls,
+    fallbackOrderBy?: OrderBySelection,
+  ) {
     this.fallbackOrderBy = fallbackOrderBy ?? defaultOrderBy;
     this.controlsSubject = new BehaviorSubject(initialControls);
     this.controls$ = this.controlsSubject.asObservable();
@@ -465,8 +468,7 @@ export const facets = [
 ];
 
 export type FacetValue<T = unknown, _allowNull extends boolean = true> =
-  | T
-  | (_allowNull extends true ? null : T);
+  T | (_allowNull extends true ? null : T);
 
 export type Agg<T, _allowNull extends boolean> = {
   value: FacetValue<T, _allowNull>;

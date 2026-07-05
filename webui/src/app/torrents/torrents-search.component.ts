@@ -115,7 +115,10 @@ export class TorrentsSearchComponent implements OnInit, OnDestroy {
       orderBy: prefOrderBy ?? defaultOrderBy,
     };
     this.controls = controls;
-    this.controller = new TorrentsSearchController(this.controls, prefOrderBy ?? undefined);
+    this.controller = new TorrentsSearchController(
+      this.controls,
+      prefOrderBy ?? undefined,
+    );
     this.dataSource = new TorrentsSearchDatasource(
       this.apollo,
       this.errorsService,
@@ -210,7 +213,10 @@ const initControls: TorrentSearchControls = {
   },
 };
 
-const paramsToControls = (params: Params, prefOrderBy?: OrderBySelection): TorrentSearchControls => {
+const paramsToControls = (
+  params: Params,
+  prefOrderBy?: OrderBySelection,
+): TorrentSearchControls => {
   const queryString = stringParam(params, "query");
   const activeFacets = stringListParam(params, "facets");
   let selectedTorrent: TorrentSelection | undefined;
@@ -280,7 +286,11 @@ const contentTypeParam = (params: Params): ContentTypeSelection => {
   return str && str in contentTypeMap ? (str as ContentTypeSelection) : null;
 };
 
-const orderByParam = (params: Params, hasQuery: boolean, prefOrderBy?: OrderBySelection): OrderBySelection => {
+const orderByParam = (
+  params: Params,
+  hasQuery: boolean,
+  prefOrderBy?: OrderBySelection,
+): OrderBySelection => {
   let desc: boolean | null = null;
   const strDesc = stringParam(params, "desc");
   if (strDesc === "1") {

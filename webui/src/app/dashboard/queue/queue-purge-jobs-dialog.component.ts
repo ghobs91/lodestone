@@ -39,7 +39,7 @@ export class QueuePurgeJobsDialogComponent {
     }
     if (event.checked) {
       let queues = this.queues ?? [];
-      if (!queues.includes(event.source.value as generated.QueueJobStatus)) {
+      if (!queues.includes(event.source.value)) {
         queues = [...queues, event.source.value];
       }
       if (queues.length === this.availableQueueNames.length) {

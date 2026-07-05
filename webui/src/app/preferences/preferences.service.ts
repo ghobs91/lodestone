@@ -36,8 +36,15 @@ export class PreferencesService {
     const raw = this.browserStorage.get(LOCAL_STORAGE_KEY);
     if (!raw) return undefined;
     try {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed.field === "string" && typeof parsed.descending === "boolean") {
+      const parsed: unknown = JSON.parse(raw);
+      if (
+        parsed &&
+        typeof parsed === "object" &&
+        "field" in parsed &&
+        "descending" in parsed &&
+        typeof (parsed as Record<string, unknown>).field === "string" &&
+        typeof (parsed as Record<string, unknown>).descending === "boolean"
+      ) {
         return parsed as OrderByPreference;
       }
     } catch {

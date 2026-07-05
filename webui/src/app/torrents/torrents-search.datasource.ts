@@ -24,9 +24,7 @@ type BudgetedCount = {
   isEstimate: boolean;
 };
 
-export class TorrentsSearchDatasource
-  implements DataSource<generated.TorrentContent>
-{
+export class TorrentsSearchDatasource implements DataSource<generated.TorrentContent> {
   private input: generated.TorrentContentSearchQueryInput;
 
   private currentRequest = new BehaviorSubject(0);

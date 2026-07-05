@@ -4,10 +4,7 @@ import { BehaviorSubject, map } from "rxjs";
 import * as generated from "../graphql/generated";
 
 export type HealthStatus =
-  | generated.HealthStatus
-  | "started"
-  | "error"
-  | "degraded";
+  generated.HealthStatus | "started" | "error" | "degraded";
 
 const icons: Record<HealthStatus, string> = {
   error: "error",
@@ -72,24 +69,20 @@ export class HealthService {
         pollInterval,
       })
       .valueChanges.pipe(
-        map(
-          (r): Result => ({
-            status:
-              r.data.health.status === "down"
-                ? "degraded"
-                : r.data.health.status,
-            checks: r.data.health.checks.map((c) => ({
-              ...c,
-              icon: icons[c.status],
-            })),
-            workers: r.data.workers.listAll.workers.map((w) => ({
-              ...w,
-              icon: icons[w.started ? "started" : "inactive"],
-            })),
-            icon: icons[r.data.health.status],
-            error: null,
-          }),
-        ),
+        map((r): Result => ({
+          status:
+            r.data.health.status === "down" ? "degraded" : r.data.health.status,
+          checks: r.data.health.checks.map((c) => ({
+            ...c,
+            icon: icons[c.status],
+          })),
+          workers: r.data.workers.listAll.workers.map((w) => ({
+            ...w,
+            icon: icons[w.started ? "started" : "inactive"],
+          })),
+          icon: icons[r.data.health.status],
+          error: null,
+        })),
       )
       .subscribe({
         next: (result) => this.resultSubject.next(result),
