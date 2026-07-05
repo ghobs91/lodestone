@@ -70,16 +70,17 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 		return tcErr
 	}
 
+	// Index torrents by InfoHash for O(1) lookup instead of O(n*m) nested loop.
+	torrentByHash := make(map[protocol.ID]int, len(searchResult.Torrents))
+	for i, t := range searchResult.Torrents {
+		torrentByHash[t.InfoHash] = i
+	}
 	for _, tc := range tcResult.Items {
-		for ti, t := range searchResult.Torrents {
-			if t.InfoHash == tc.InfoHash {
-				searchResult.Torrents[ti].Contents = append(
-					searchResult.Torrents[ti].Contents,
-					tc.TorrentContent,
-				)
-
-				break
-			}
+		if idx, ok := torrentByHash[tc.InfoHash]; ok {
+			searchResult.Torrents[idx].Contents = append(
+				searchResult.Torrents[idx].Contents,
+				tc.TorrentContent,
+			)
 		}
 	}
 
@@ -95,8 +96,8 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 
 	tagsToAdd := make(map[protocol.ID]map[string]struct{})
 
-	failedHashes := make([]protocol.ID, 0, len(searchResult.MissingInfoHashes))
-	failedHashes = append(failedHashes, searchResult.MissingInfoHashes...)
+	failedHashes := make([]protocol.ID, len(searchResult.MissingInfoHashes))
+	copy(failedHashes, searchResult.MissingInfoHashes)
 
 	if len(failedHashes) > 0 {
 		errs = append(errs, MissingHashesError{InfoHashes: failedHashes})
