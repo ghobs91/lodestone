@@ -101,34 +101,64 @@ type infoHashWithScrape struct {
 	bfpe bloom.Filter
 }
 
+const ignoreHashesShards = 16
+
+// ignoreHashes is a sharded, rotating dual-bloom-filter set that tracks
+// info hashes the crawler has already encountered. Sharding eliminates
+// mutex contention on the hot path. The dual-filter design (active +
+// previous) prevents the periodic "reset spike" where all previously-seen
+// hashes would suddenly pass through to the database after a single-filter
+// reset.
 type ignoreHashes struct {
-	mutex    sync.Mutex
-	bloom    *boom.StableBloomFilter
+	shards [ignoreHashesShards]*ignoreHashShard
+}
+
+type ignoreHashShard struct {
+	mu       sync.Mutex
+	active   *boom.StableBloomFilter
+	previous *boom.StableBloomFilter
 	count    uint64
 	capacity uint64
+	fpRate   float64
 }
 
 func newIgnoreHashes(capacity uint64, fpRate float64) *ignoreHashes {
-	return &ignoreHashes{
-		bloom:    boom.NewStableBloomFilter(uint(capacity), 2, fpRate),
-		capacity: capacity,
+	ih := &ignoreHashes{}
+	shardCap := capacity / ignoreHashesShards
+	for i := range ignoreHashesShards {
+		ih.shards[i] = &ignoreHashShard{
+			active:   boom.NewStableBloomFilter(uint(shardCap), 2, fpRate),
+			capacity: shardCap,
+			fpRate:   fpRate,
+		}
 	}
+	return ih
 }
 
 func (i *ignoreHashes) testAndAdd(id protocol.ID) bool {
-	i.mutex.Lock()
-	defer i.mutex.Unlock()
+	// Shard by the first byte to distribute contention.
+	shard := i.shards[id[0]%ignoreHashesShards]
+	shard.mu.Lock()
+	defer shard.mu.Unlock()
 
-	if i.bloom.TestAndAdd(id[:]) {
+	// Check both filters: if present in either, it's a duplicate.
+	if shard.active.TestAndAdd(id[:]) {
+		return true
+	}
+	if shard.previous != nil && shard.previous.Test(id[:]) {
 		return true
 	}
 
-	i.count++
-	// When we've inserted roughly as many items as the capacity,
-	// reset the filter to restore the target false positive rate.
-	if i.count >= i.capacity {
-		i.bloom.Reset()
-		i.count = 0
+	shard.count++
+
+	// When the active filter is full, rotate: previous becomes the old
+	// active, and we start a fresh active filter. Hashes in the previous
+	// filter are still consulted for one full rotation cycle, smoothing
+	// out the false-positive rate and preventing a sudden DB spike.
+	if shard.count >= shard.capacity {
+		shard.previous = shard.active
+		shard.active = boom.NewStableBloomFilter(uint(shard.capacity), 2, shard.fpRate)
+		shard.count = 0
 	}
 
 	return false

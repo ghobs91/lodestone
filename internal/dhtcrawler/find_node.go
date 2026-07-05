@@ -38,13 +38,15 @@ func (c *crawler) runFindNode(ctx context.Context) {
 				Addr:    p.Addr(),
 				Options: []ktable.NodeOption{ktable.NodeResponded()},
 			})
-			// block this channel until all nodes can be added to the discoveredNodes channel
+			// Try to add discovered nodes to the pipeline; drop nodes
+			// if the channel is full rather than blocking the worker.
 			for _, n := range res.Nodes {
 				select {
 				case <-ctx.Done():
 					return
 				case c.discoveredNodes.In() <- ktable.NewNode(n.ID, n.Addr):
-					continue
+				default:
+					// Channel full; drop the node to avoid pipeline stall.
 				}
 			}
 		}

@@ -51,13 +51,15 @@ func (c *crawler) runSampleInfoHashes(ctx context.Context) {
 		}
 
 		for _, h := range discoveredHashes {
-			select {
-			case <-ctx.Done():
-				return
-			case c.infoHashTriage.In() <- h:
-				continue
+				select {
+				case <-ctx.Done():
+					return
+				case c.infoHashTriage.In() <- h:
+				default:
+					// Channel full; drop hash to avoid blocking the worker.
+					// It will be re-discovered by future sample_infohashes calls.
+				}
 			}
-		}
 
 		interval := res.Interval
 		// most nodes request a 6 hour backoff time(!)
