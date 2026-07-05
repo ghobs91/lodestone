@@ -123,6 +123,13 @@ func (i *activeImport) run(ctx context.Context) {
 		i.ctx = iCtx
 		i.stop = cancel
 		i.mutex.Unlock()
+
+		// Use a timer (not After in a loop) for flush deadlines, resetting it
+		// each time we receive new items so we batch aggressively during
+		// bursts but still flush promptly when the stream goes idle.
+		timer := time.NewTimer(i.maxWaitTime)
+		defer timer.Stop()
+
 		for {
 			select {
 			case <-iCtx.Done():
@@ -132,12 +139,38 @@ func (i *activeImport) run(ctx context.Context) {
 				if !ok {
 					return
 				}
-				go i.buffer(item)
-			case <-time.After(i.maxWaitTime):
-				go i.flush()
+				// Buffer the item inline instead of spawning a goroutine.
+				i.buffer(item)
+				// Drain any additional items that are immediately available.
+				i.drainAvailable()
+				if !timer.Stop() {
+					select {
+					case <-timer.C:
+					default:
+					}
+				}
+				timer.Reset(i.maxWaitTime)
+			case <-timer.C:
+				i.flush()
+				timer.Reset(i.maxWaitTime)
 			}
 		}
 	})()
+}
+
+// drainAvailable consumes any items waiting on the channel without blocking.
+func (i *activeImport) drainAvailable() {
+	for {
+		select {
+		case item, ok := <-i.itemChan:
+			if !ok {
+				return
+			}
+			i.buffer(item)
+		default:
+			return
+		}
+	}
 }
 
 func (i *activeImport) buffer(item Item) {
