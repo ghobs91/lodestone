@@ -24,9 +24,7 @@
           "type": "array"
         }
       },
-      "required": [
-        "add_tag"
-      ],
+      "required": ["add_tag"],
       "type": "object"
     },
     "action__attach_local_content_by_id": {
@@ -60,9 +58,7 @@
           "type": "array"
         }
       },
-      "required": [
-        "find_match"
-      ],
+      "required": ["find_match"],
       "type": "object"
     },
     "action__if_else": {
@@ -82,15 +78,11 @@
               "$ref": "#/definitions/action"
             }
           },
-          "required": [
-            "condition"
-          ],
+          "required": ["condition"],
           "type": "object"
         }
       },
-      "required": [
-        "if_else"
-      ],
+      "required": ["if_else"],
       "type": "object"
     },
     "action__parse_date": {
@@ -113,9 +105,7 @@
           "type": "array"
         }
       },
-      "required": [
-        "run_workflow"
-      ],
+      "required": ["run_workflow"],
       "type": "object"
     },
     "action__set_content_type": {
@@ -138,9 +128,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "set_content_type"
-      ],
+      "required": ["set_content_type"],
       "type": "object"
     },
     "action__unmatched": {
@@ -223,9 +211,7 @@
           "type": "array"
         }
       },
-      "required": [
-        "and"
-      ],
+      "required": ["and"],
       "type": "object"
     },
     "condition__expression": {
@@ -239,9 +225,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "expression"
-          ],
+          "required": ["expression"],
           "type": "object"
         },
         {
@@ -259,9 +243,7 @@
           "$ref": "#/definitions/condition"
         }
       },
-      "required": [
-        "not"
-      ],
+      "required": ["not"],
       "type": "object"
     },
     "condition__or": {
@@ -275,9 +257,7 @@
           "type": "array"
         }
       },
-      "required": [
-        "or"
-      ],
+      "required": ["or"],
       "type": "object"
     }
   },
@@ -296,13 +276,7 @@
     },
     "flag_definitions": {
       "additionalProperties": {
-        "enum": [
-          "bool",
-          "string",
-          "int",
-          "string_list",
-          "content_type_list"
-        ],
+        "enum": ["bool", "string", "int", "string_list", "content_type_list"],
         "type": "string"
       },
       "type": "object"
