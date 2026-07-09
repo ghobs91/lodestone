@@ -21,7 +21,8 @@ const emptyResult = {
   },
 };
 
-export interface ITorrentFilesDatasource extends DataSource<generated.TorrentFile> {
+export interface ITorrentFilesDatasource
+  extends DataSource<generated.TorrentFile> {
   loading$: Observable<boolean>;
   result$: Observable<generated.TorrentFilesQueryResult>;
   result: generated.TorrentFilesQueryResult;
