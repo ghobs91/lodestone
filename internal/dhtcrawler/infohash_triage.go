@@ -112,7 +112,7 @@ func (c *crawler) runInfoHashTriage(ctx context.Context) {
 			}
 
 			// Route each hash based on its triage result.
-			for h := range filteredHashes {
+			for _, h := range filteredHashes {
 				r := reqMap[h]
 				t, ok := cachedResults[h]
 				if !ok ||
