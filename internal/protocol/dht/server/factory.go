@@ -43,6 +43,10 @@ func New(p Params) Result {
 	lastResponses := &concurrency.AtomicValue[LastResponses]{}
 	collector := newPrometheusCollector()
 	ls := lazy.New(func() (Server, error) {
+		var globalLimiter *rate.Limiter
+		if p.Config.GlobalQueryRateLimit > 0 {
+			globalLimiter = rate.NewLimiter(p.Config.GlobalQueryRateLimit, int(p.Config.GlobalQueryRateLimit)/10)
+		}
 		s := queryLimiter{
 			server: prometheusServerWrapper{
 				prometheusCollector: collector,
@@ -64,7 +68,8 @@ func New(p Params) Result {
 					lastResponses: lastResponses,
 				},
 			},
-			queryLimiter: concurrency.NewKeyedLimiter(rate.Every(time.Second), 4, 1000, time.Second*20),
+			queryLimiter:  concurrency.NewKeyedLimiter(rate.Every(time.Second), 4, 1000, time.Second*20),
+			globalLimiter: globalLimiter,
 		}
 		if err := s.start(); err != nil {
 			return nil, fmt.Errorf("could not start server: %w", err)

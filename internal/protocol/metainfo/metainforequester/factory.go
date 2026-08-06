@@ -38,6 +38,11 @@ func New(p Params) Result {
 		},
 	})
 
+	var globalLimiter *rate.Limiter
+	if p.Config.GlobalRequestRateLimit > 0 {
+		globalLimiter = rate.NewLimiter(p.Config.GlobalRequestRateLimit, int(p.Config.GlobalRequestRateLimit)/10)
+	}
+
 	return Result{
 		Requester: requestLimiter{
 			requester: requestLogger{
@@ -48,7 +53,8 @@ func New(p Params) Result {
 					return zapcore.NewSamplerWithOptions(core, time.Minute, 10, 0)
 				})).Named("meta_info_requester"),
 			},
-			limiter: concurrency.NewKeyedLimiter(rate.Every(time.Second/2), 4, 1000, time.Second*20),
+			limiter:       concurrency.NewKeyedLimiter(rate.Every(time.Second/2), 4, 1000, time.Second*20),
+			globalLimiter: globalLimiter,
 		},
 		RequestDuration:     collector.requestDuration,
 		RequestSuccessTotal: collector.requestSuccessTotal,
