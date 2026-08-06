@@ -6,9 +6,10 @@ import (
 
 type Config struct {
 	// ScalingFactor is a rough proxy for resource usage of the crawler; concurrency and buffer size of the various
-	// pipeline channels are multiplied by this value. Diminishing returns may result from exceeding the
-	// default value of 10. Since the software has not been tested on a wide variety of hardware and network
-	// conditions; your mileage may vary here...
+	// pipeline channels are multiplied by this value. The default of 2 is deliberately conservative to avoid
+	// saturating Docker's conntrack table and exhausting ephemeral ports. Increase only if you have tuned
+	// your kernel networking parameters (net.netfilter.nf_conntrack_max, net.ipv4.ip_local_port_range) and
+	// have bandwidth to spare. Values above 5 are unlikely to yield proportional gains.
 	ScalingFactor                uint
 	BootstrapNodes               []string
 	ReseedBootstrapNodesInterval time.Duration
@@ -26,7 +27,11 @@ type Config struct {
 
 func NewDefaultConfig() Config {
 	return Config{
-		ScalingFactor:                10,
+		// A ScalingFactor of 2 provides a reasonable baseline that won't overwhelm
+		// typical home-network hardware or saturate Docker's conntrack table.
+		// Increase cautiously if you have plentiful bandwidth and have tuned your
+		// kernel's net.netfilter.nf_conntrack_max accordingly.
+		ScalingFactor:                2,
 		BootstrapNodes:               defaultBootstrapNodes,
 		ReseedBootstrapNodesInterval: time.Minute,
 		SaveFilesThreshold:           100,

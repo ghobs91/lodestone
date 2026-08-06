@@ -100,7 +100,7 @@ func New(params Params) Result {
 							10*scalingFactor, 20*scalingFactor),
 						requestMetaInfo: concurrency.NewBufferedConcurrentChannel[infoHashWithPeers](
 							10*scalingFactor,
-							40*scalingFactor,
+							20*scalingFactor,
 						),
 						persistTorrents: concurrency.NewBatchingChannel[infoHashWithMetaInfo](
 							1000,
@@ -116,12 +116,12 @@ func New(params Params) Result {
 						savePieces:         params.Config.SavePieces,
 						rescrapeThreshold:  params.Config.RescrapeThreshold,
 						dao:                query,
-						ignoreHashes: newIgnoreHashes(10_000_000, 0.001),
-						blockingManager: blockingManager,
-						soughtNodeID:    &concurrency.AtomicValue[protocol.ID]{},
-						stopped:         make(chan struct{}),
-						persistedTotal:  persistedTotal,
-						logger:          params.Logger.Named("dht_crawler"),
+						ignoreHashes:       newIgnoreHashes(10_000_000, 0.001),
+						blockingManager:    blockingManager,
+						soughtNodeID:       &concurrency.AtomicValue[protocol.ID]{},
+						stopped:            make(chan struct{}),
+						persistedTotal:     persistedTotal,
+						logger:             params.Logger.Named("dht_crawler"),
 					}
 					c.soughtNodeID.Set(protocol.RandomNodeID())
 
