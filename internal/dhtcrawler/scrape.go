@@ -50,10 +50,11 @@ func (c *crawler) requestScrape(
 	if len(res.Nodes) > 0 {
 		cancelCtx, cancel := context.WithTimeout(ctx, time.Second)
 
+	outer:
 		for _, n := range res.Nodes {
 			select {
 			case <-cancelCtx.Done():
-				break
+				break outer
 			case c.discoveredNodes.In() <- ktable.NewNode(n.ID, n.Addr):
 				continue
 			}

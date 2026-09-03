@@ -17,6 +17,10 @@ func (c *crawler) getNodesForFindNode(ctx context.Context) {
 				return
 			case c.nodesForFindNode.In() <- p:
 				continue
+			default:
+				// Channel full; drop rather than forcing the send and
+				// permanently saturating the global query rate limiter.
+				continue
 			}
 		}
 

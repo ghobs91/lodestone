@@ -80,8 +80,8 @@ func New(params Params) Result {
 						metainfoRequester:            params.MetainfoRequester,
 						banningChecker:               params.BanningChecker,
 						bootstrapNodes:               params.Config.BootstrapNodes,
-						reseedBootstrapNodesInterval: time.Minute * 10,
-						getOldestNodesInterval:       time.Second * 10,
+						reseedBootstrapNodesInterval: params.Config.ReseedBootstrapNodesInterval,
+						getOldestNodesInterval:       time.Second * 30,
 						oldPeerThreshold:             time.Minute * 15,
 						discoveredNodes:              params.DiscoveredNodes,
 						nodesForPing: concurrency.NewBufferedConcurrentChannel[ktable.Node](

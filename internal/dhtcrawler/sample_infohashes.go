@@ -17,6 +17,10 @@ func (c *crawler) getNodesForSampleInfoHashes(ctx context.Context) {
 				return
 			case c.nodesForSampleInfoHashes.In() <- p:
 				continue
+			default:
+				// Channel full; drop rather than forcing the send and
+				// permanently saturating the global query rate limiter.
+				continue
 			}
 		}
 
@@ -51,15 +55,15 @@ func (c *crawler) runSampleInfoHashes(ctx context.Context) {
 		}
 
 		for _, h := range discoveredHashes {
-				select {
-				case <-ctx.Done():
-					return
-				case c.infoHashTriage.In() <- h:
-				default:
-					// Channel full; drop hash to avoid blocking the worker.
-					// It will be re-discovered by future sample_infohashes calls.
-				}
+			select {
+			case <-ctx.Done():
+				return
+			case c.infoHashTriage.In() <- h:
+			default:
+				// Channel full; drop hash to avoid blocking the worker.
+				// It will be re-discovered by future sample_infohashes calls.
 			}
+		}
 
 		interval := res.Interval
 		// most nodes request a 6 hour backoff time(!)

@@ -27,6 +27,9 @@ func (c *crawler) reseedBootstrapNodes(ctx context.Context) {
 					return
 				case c.nodesForPing.In() <- ktable.NewNode(ktable.ID{}, addr.AddrPort()):
 					continue
+				default:
+					// Ping queue full; skip reseed this round.
+					continue
 				}
 			}
 		}

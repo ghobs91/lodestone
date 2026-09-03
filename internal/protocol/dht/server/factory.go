@@ -64,6 +64,7 @@ func New(p Params) Result {
 						responderTimeout: time.Second * 5,
 						idIssuer:         &variantIDIssuer{},
 						logger:           p.Logger.Named(subsystem),
+						querySem:         make(chan struct{}, maxConcurrentInboundQueries),
 					},
 					lastResponses: lastResponses,
 				},

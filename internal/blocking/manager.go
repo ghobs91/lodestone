@@ -23,7 +23,7 @@ type Manager interface {
 }
 
 type manager struct {
-	mu            sync.Mutex
+	mu            sync.RWMutex
 	pool          *pgxpool.Pool
 	buffer        map[protocol.ID]struct{}
 	filter        *bloom.StableBloomFilter
@@ -34,6 +34,24 @@ type manager struct {
 }
 
 func (m *manager) Filter(ctx context.Context, hashes []protocol.ID) ([]protocol.ID, error) {
+	// Fast path: concurrent reads once the filter is loaded.
+	m.mu.RLock()
+	if m.filterLoaded {
+		filtered := make([]protocol.ID, 0, len(hashes))
+		for _, hash := range hashes {
+			if _, ok := m.buffer[hash]; ok {
+				continue
+			}
+			if m.filter != nil && m.filter.Test(hash[:]) {
+				continue
+			}
+			filtered = append(filtered, hash)
+		}
+		m.mu.RUnlock()
+		return filtered, nil
+	}
+	m.mu.RUnlock()
+
 	m.mu.Lock()
 	defer m.mu.Unlock()
 

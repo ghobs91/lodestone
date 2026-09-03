@@ -21,7 +21,7 @@ type batchingChannel[T any] struct {
 func NewBatchingChannel[T any](capacity int, maxBatchSize int, maxWaitTime time.Duration) BatchingChannel[T] {
 	ch := &batchingChannel[T]{
 		input:        make(chan T, capacity),
-		output:       make(chan []T, 1),
+		output:       make(chan []T, 4),
 		maxBatchSize: maxBatchSize,
 		maxWaitTime:  maxWaitTime,
 		timer:        time.NewTimer(maxWaitTime),

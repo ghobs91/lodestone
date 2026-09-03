@@ -70,6 +70,9 @@ func levenshteinFindMinDistanceNorm(normTarget string, candidates []string) int 
 		}
 
 		distance := levenshtein.ComputeDistance(normTarget, normCandidate)
+		if distance == 0 {
+			return 0
+		}
 		if minDistance == -1 || distance < minDistance {
 			minDistance = distance
 		}
@@ -104,10 +107,20 @@ func (c *levenshteinNormCache) get(raw string) string {
 
 	c.mu.Lock()
 	// Cap the cache at a reasonable size so it doesn't grow unbounded
-	// during long-running classification sweeps.
-	if len(c.entries) < 10_000 {
-		c.entries[raw] = norm
+	// during long-running classification sweeps. Once full, evict a chunk
+	// to make room so new titles still benefit from caching instead of
+	// recomputing normalization on every miss.
+	if len(c.entries) >= 10_000 {
+		i := 0
+		for k := range c.entries {
+			delete(c.entries, k)
+			i++
+			if i >= 1_000 {
+				break
+			}
+		}
 	}
+	c.entries[raw] = norm
 	c.mu.Unlock()
 
 	return norm

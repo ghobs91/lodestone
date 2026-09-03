@@ -48,17 +48,22 @@ func (c *crawler) runPing(ctx context.Context) {
 
 // getOldNodes periodically adds the oldest nodes from the routing table to the nodesForPing channel,
 // so they can be pruned from the routing table if no longer responsive.
+// The fetch is bounded and the send is non-blocking so a slow ping worker
+// can't backlog an unbounded scan or stall the loop and flood the network.
 func (c *crawler) getOldNodes(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-time.After(c.getOldestNodesInterval):
-			for _, p := range c.kTable.GetOldestNodes(time.Now().Add(-c.oldPeerThreshold), 0) {
+			for _, p := range c.kTable.GetOldestNodes(time.Now().Add(-c.oldPeerThreshold), 50) {
 				select {
 				case <-ctx.Done():
 					return
 				case c.nodesForPing.In() <- p:
+					continue
+				default:
+					// Channel full; drop and retry on the next tick.
 					continue
 				}
 			}

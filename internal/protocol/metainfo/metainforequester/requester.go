@@ -127,7 +127,9 @@ func (r requester) Request(ctx context.Context, infoHash protocol.ID, addr netip
 }
 
 func (r requester) connect(ctx context.Context, addr netip.AddrPort) (conn *net.TCPConn, err error) {
-	c, dialErr := r.dialer.DialContext(ctx, "tcp4", addr.String())
+	// Use dual-stack dialing so IPv6 peers don't always burn the full dial
+	// timeout and a global limiter token.
+	c, dialErr := r.dialer.DialContext(ctx, "tcp", addr.String())
 	if dialErr != nil {
 		err = dialErr
 		return

@@ -31,7 +31,13 @@ type server struct {
 	responderTimeout time.Duration
 	idIssuer         IDIssuer
 	logger           *zap.SugaredLogger
+	// querySem bounds concurrent inbound query handlers so a DHT flood
+	// can't spawn unbounded goroutines and OOM the process.
+	querySem chan struct{}
 }
+
+// maxConcurrentInboundQueries caps goroutines spawned for inbound DHT queries.
+const maxConcurrentInboundQueries = 256
 
 func (s *server) start() error {
 	if err := s.socket.Open(s.localAddr); err != nil {
@@ -105,9 +111,24 @@ func (s *server) read(ctx context.Context) {
 
 		switch msg.Y {
 		case dht.YQuery:
-			go s.handleQuery(ctx, recvMsg)
+			if s.querySem == nil {
+				go s.handleQuery(ctx, recvMsg)
+				continue
+			}
+			select {
+			case s.querySem <- struct{}{}:
+				go func() {
+					defer func() { <-s.querySem }()
+					s.handleQuery(ctx, recvMsg)
+				}()
+			default:
+				// Overloaded; drop rather than spawning unbounded goroutines.
+				s.logger.Debugw("dropping inbound query, overloaded")
+			}
 		case dht.YResponse, dht.YError:
-			go s.handleResponse(recvMsg)
+			// Cheap inline handling; handleResponse itself is non-blocking
+			// so no goroutine is needed per response packet.
+			s.handleResponse(recvMsg)
 		}
 	}
 }
@@ -151,7 +172,12 @@ func (s *server) handleResponse(msg dht.RecvMsg) {
 	s.mutex.Unlock()
 
 	if ok {
-		ch <- msg
+		select {
+		case ch <- msg:
+		default:
+			// Receiver already has a pending response (cap 1) or timed out;
+			// drop the duplicate rather than blocking the read loop.
+		}
 	}
 }
 

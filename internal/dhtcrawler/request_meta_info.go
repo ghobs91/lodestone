@@ -15,7 +15,12 @@ const (
 	// maxParallelPeers is the number of peers to request metadata from concurrently.
 	maxParallelPeers = 5
 	// perPeerTimeout prevents a single slow peer from blocking the entire request.
-	perPeerTimeout = 10 * time.Second
+	// Kept just above the metainfo requester's own timeout (6s) so the inner
+	// timeout fires first and we don't hold a crawler worker slot needlessly.
+	perPeerTimeout = 7 * time.Second
+	// maxPeersPerHash bounds memory (resultCh, errors.Join) when a hash has
+	// an unusually large peer list.
+	maxPeersPerHash = 20
 )
 
 func (c *crawler) runRequestMetaInfo(ctx context.Context) {
@@ -43,6 +48,11 @@ func (c *crawler) doRequestMetaInfo(
 	raceCtx, raceCancel := context.WithCancel(ctx)
 	defer raceCancel()
 
+	// Bound worst-case fan-out: the first peers are as good as any for metadata.
+	if len(peers) > maxPeersPerHash {
+		peers = peers[:maxPeersPerHash]
+	}
+
 	type result struct {
 		resp metainforequester.Response
 		err  error
@@ -54,10 +64,11 @@ func (c *crawler) doRequestMetaInfo(
 
 	sem := make(chan struct{}, maxParallelPeers)
 
+spawn:
 	for _, p := range peers {
 		select {
 		case <-raceCtx.Done():
-			break
+			break spawn
 		case sem <- struct{}{}:
 		}
 

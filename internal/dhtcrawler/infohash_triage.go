@@ -176,13 +176,22 @@ func (tc *triageCache) get(hash protocol.ID) (triageResult, bool) {
 func (tc *triageCache) set(hash protocol.ID, result triageResult) {
 	// Limit cache size to prevent unbounded growth.
 	if len(tc.entries) >= 100_000 {
-		// Evict ~10% of entries (simple first-key eviction).
-		i := 0
-		for k := range tc.entries {
-			delete(tc.entries, k)
-			i++
-			if i >= 10_000 {
-				break
+		now := time.Now()
+		// Prefer evicting expired entries first.
+		for k, e := range tc.entries {
+			if now.After(e.expiresAt) {
+				delete(tc.entries, k)
+			}
+		}
+		// If still full, evict ~10% (simple first-key eviction).
+		if len(tc.entries) >= 100_000 {
+			i := 0
+			for k := range tc.entries {
+				delete(tc.entries, k)
+				i++
+				if i >= 10_000 {
+					break
+				}
 			}
 		}
 	}
