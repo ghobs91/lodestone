@@ -7,12 +7,14 @@ import (
 	"github.com/ghobs91/lodestone/internal/health"
 	"github.com/ghobs91/lodestone/internal/protocol/dht/server"
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 )
 
 type Params struct {
 	fx.In
 	DhtCrawlerActive       *concurrency.AtomicValue[bool]                 `name:"dht_crawler_active"`
 	DhtServerLastResponses *concurrency.AtomicValue[server.LastResponses] `name:"dht_server_last_responses"`
+	Logger                 *zap.SugaredLogger
 }
 
 type Result struct {
@@ -25,7 +27,7 @@ func New(params Params) Result {
 		Option: health.WithPeriodicCheck(
 			time.Second*10,
 			time.Second*1,
-			NewCheck(params.DhtCrawlerActive, params.DhtServerLastResponses),
+			NewCheck(params.DhtCrawlerActive, params.DhtServerLastResponses, params.Logger.Named("dht_health")),
 		),
 	}
 }

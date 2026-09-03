@@ -36,9 +36,9 @@ func New(p Params) Result {
 					server: s,
 				},
 				// we make way to many queries to usefully log everything, but having a sample is
-				// helpful:
+				// helpful: log the first 10 of each message per minute, then every 100th thereafter.
 				logger: p.Logger.WithOptions(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
-					return zapcore.NewSamplerWithOptions(core, time.Minute, 10, 0)
+					return zapcore.NewSamplerWithOptions(core, time.Minute, 10, 100)
 				})).Named("dht_client"),
 			}, nil
 		}),

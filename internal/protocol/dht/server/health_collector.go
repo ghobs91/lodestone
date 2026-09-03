@@ -13,6 +13,7 @@ type LastResponses struct {
 	StartTime    time.Time
 	LastSuccess  time.Time
 	LastResponse time.Time
+	LastError    string // most recent query error for diagnostics
 }
 
 type healthCollector struct {
@@ -48,6 +49,8 @@ func (c healthCollector) Query(
 		lr.LastResponse = time.Now()
 		if err == nil {
 			lr.LastSuccess = lr.LastResponse
+		} else {
+			lr.LastError = err.Error()
 		}
 
 		return lr
