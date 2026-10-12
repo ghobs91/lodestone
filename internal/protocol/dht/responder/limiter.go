@@ -48,5 +48,5 @@ func NewLimiter(
 }
 
 func (l *limiter) Allow(addr netip.Addr) bool {
-	return l.keyedLimiter.Allow(addr.String()) && l.limiter.Allow()
+	return l.keyedLimiter.Allow(addr) && l.limiter.Allow()
 }

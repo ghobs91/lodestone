@@ -2,6 +2,7 @@ package concurrency
 
 import (
 	"context"
+	"net/netip"
 	"sync"
 	"time"
 
@@ -10,12 +11,12 @@ import (
 )
 
 type KeyedLimiter interface {
-	Allow(key string) bool
-	Wait(ctx context.Context, key string) error
+	Allow(key netip.Addr) bool
+	Wait(ctx context.Context, key netip.Addr) error
 }
 
 type keyedLimiter struct {
-	lru   *lru.LRU[string, *rate.Limiter]
+	lru   *lru.LRU[netip.Addr, *rate.Limiter]
 	mu    sync.RWMutex
 	rl    rate.Limit
 	burst int
@@ -23,7 +24,7 @@ type keyedLimiter struct {
 
 func NewKeyedLimiter(rl rate.Limit, burst int, size int, ttl time.Duration) KeyedLimiter {
 	i := &keyedLimiter{
-		lru:   lru.NewLRU[string, *rate.Limiter](size, nil, ttl),
+		lru:   lru.NewLRU[netip.Addr, *rate.Limiter](size, nil, ttl),
 		rl:    rl,
 		burst: burst,
 	}
@@ -31,15 +32,15 @@ func NewKeyedLimiter(rl rate.Limit, burst int, size int, ttl time.Duration) Keye
 	return i
 }
 
-func (i *keyedLimiter) Allow(key string) bool {
+func (i *keyedLimiter) Allow(key netip.Addr) bool {
 	return i.getLimiter(key).Allow()
 }
 
-func (i *keyedLimiter) Wait(ctx context.Context, key string) error {
+func (i *keyedLimiter) Wait(ctx context.Context, key netip.Addr) error {
 	return i.getLimiter(key).Wait(ctx)
 }
 
-func (i *keyedLimiter) getLimiter(key string) *rate.Limiter {
+func (i *keyedLimiter) getLimiter(key netip.Addr) *rate.Limiter {
 	// Fast path: try a read lock first for the common cache-hit case.
 	i.mu.RLock()
 	l, ok := i.lru.Get(key)

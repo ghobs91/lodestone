@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/netip"
 	"time"
 
 	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable"
@@ -17,14 +16,13 @@ func (c *crawler) runGetPeers(ctx context.Context) {
 			return
 		}
 
-		peers := make([]netip.AddrPort, 0, len(pfh.peers))
-		hashPeers := make([]ktable.HashPeer, 0, len(pfh.peers))
+		// pfh.peers is already owned by us, so reuse it directly instead of
+		// copying into a second slice.
+		peers := pfh.peers
 
-		for _, p := range pfh.peers {
-			peers = append(peers, p)
-			hashPeers = append(hashPeers, ktable.HashPeer{
-				Addr: p,
-			})
+		hashPeers := make([]ktable.HashPeer, len(peers))
+		for i, p := range peers {
+			hashPeers[i] = ktable.HashPeer{Addr: p}
 		}
 
 		c.kTable.BatchCommand(

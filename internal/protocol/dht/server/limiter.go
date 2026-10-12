@@ -37,7 +37,7 @@ func (s queryLimiter) Query(
 		}
 	}
 
-	if limitErr := s.queryLimiter.Wait(ctx, addr.Addr().String()); limitErr != nil {
+	if limitErr := s.queryLimiter.Wait(ctx, addr.Addr()); limitErr != nil {
 		return r, limitErr
 	}
 
