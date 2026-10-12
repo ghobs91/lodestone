@@ -79,7 +79,7 @@ func (l *Lexer) ReadIf(fn func(rune) bool) (rune, bool) {
 }
 
 func (l *Lexer) ReadWhile(fn func(rune) bool) string {
-	var str string
+	var b strings.Builder
 
 	for {
 		r, ok := l.ReadIf(fn)
@@ -87,14 +87,14 @@ func (l *Lexer) ReadWhile(fn func(rune) bool) string {
 			break
 		}
 
-		str += string(r)
+		b.WriteRune(r)
 	}
 
-	return str
+	return b.String()
 }
 
 func (l *Lexer) ReadUntil(fn func(rune) bool) string {
-	var str string
+	var b strings.Builder
 
 	for {
 		r, ok := l.Read()
@@ -102,14 +102,14 @@ func (l *Lexer) ReadUntil(fn func(rune) bool) string {
 			break
 		}
 
-		str += string(r)
+		b.WriteRune(r)
 
 		if fn(r) {
 			break
 		}
 	}
 
-	return str
+	return b.String()
 }
 
 func (l *Lexer) ReadInt() (int, bool) {
