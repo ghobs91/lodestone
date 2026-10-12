@@ -37,6 +37,9 @@ yarn-error.log
 .sass-cache/
 testem.log
 
+# Tooling
+.serena/
+
 # System files
 .DS_Store
 Thumbs.db
