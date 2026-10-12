@@ -156,6 +156,10 @@ func (s *server) listenLoop(ctx context.Context, listenerChans map[string]chan p
 
 const gcBatchSize = 1000
 
+// gcArchivalDuration is how long a completed/failed job is retained before it
+// can be garbage collected. It mirrors the default QueueJob ArchivalDuration.
+const gcArchivalDuration = 7 * 24 * time.Hour
+
 func (s *server) runGarbageCollection(ctx context.Context) {
 	for {
 		s.runGCBatch(ctx)
@@ -169,18 +173,14 @@ func (s *server) runGarbageCollection(ctx context.Context) {
 }
 
 // runGCBatch deletes expired jobs in batches to avoid long-held locks and
-// excessive WAL generation that could happen with unbounded DELETEs.
+// excessive WAL generation that could happen with unbounded DELETEs. The
+// predicate is written against ran_at alone (a constant bound, not a row-level
+// expression) so the partial queue_jobs_gc_idx can be used.
 func (s *server) runGCBatch(ctx context.Context) {
 	for {
-		tx := s.query.QueueJob.WithContext(ctx).Where(
-			s.query.QueueJob.Status.In(string(model.QueueJobStatusProcessed), string(model.QueueJobStatusFailed)),
-		).
-			UnderlyingDB().Where(
-			"queue_jobs.ran_at + queue_jobs.archival_duration < ?::timestamptz",
-			time.Now(),
-		).Where(
-			"queue_jobs.id IN (SELECT id FROM queue_jobs WHERE status IN (?, ?) AND ran_at + archival_duration < ?::timestamptz LIMIT ?)",
-			string(model.QueueJobStatusProcessed), string(model.QueueJobStatusFailed), time.Now(), gcBatchSize,
+		tx := s.query.QueueJob.WithContext(ctx).UnderlyingDB().Where(
+			"queue_jobs.id IN (SELECT id FROM queue_jobs WHERE status IN (?, ?) AND ran_at <= ? LIMIT ?)",
+			string(model.QueueJobStatusProcessed), string(model.QueueJobStatusFailed), time.Now().Add(-gcArchivalDuration), gcBatchSize,
 		).Delete(&model.QueueJob{})
 		if tx.Error != nil {
 			s.logger.Errorw("error deleting old queue jobs", "error", tx.Error)
