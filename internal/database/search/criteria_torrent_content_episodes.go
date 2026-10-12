@@ -13,24 +13,26 @@ func TorrentContentEpisodesCriteria(episodes model.Episodes) query.Criteria {
 		and := make([]query.Criteria, 0, len(episodes))
 
 		for _, s := range episodes.SeasonEntries() {
+			var containment string
 			if len(s.Episodes) == 0 {
-				and = append(and, query.DBCriteria{
-					SQL: fmt.Sprintf("torrent_contents.episodes #> '{%d}' = '{}'::jsonb", s.Season),
-				})
+				// Whole-season match: the season key maps to an empty object.
+				containment = fmt.Sprintf(`{"%d":{}}`, s.Season)
 			} else {
-				keyParts := make([]string, 0, len(s.Episodes))
+				episodeParts := make([]string, 0, len(s.Episodes))
 				for _, e := range s.Episodes {
-					keyParts = append(keyParts, fmt.Sprintf("\"%d\":{}", e))
+					episodeParts = append(episodeParts, fmt.Sprintf(`"%d":{}`, e))
 				}
 
-				and = append(and, query.DBCriteria{
-					SQL: fmt.Sprintf(
-						"torrent_contents.episodes #> '{%d}' @> '{%s}'::jsonb",
-						s.Season,
-						strings.Join(keyParts, ","),
-					),
-				})
+				containment = fmt.Sprintf(`{"%d":{%s}}`, s.Season, strings.Join(episodeParts, ","))
 			}
+
+			and = append(and, query.DBCriteria{
+				// jsonb containment (@>) can be served by the GIN
+				// (episodes jsonb_path_ops) index; the previous
+				// `#>`-based predicates could not use any index.
+				SQL:  "torrent_contents.episodes @> ?::jsonb",
+				Args: []interface{}{containment},
+			})
 		}
 
 		return query.AndCriteria{
