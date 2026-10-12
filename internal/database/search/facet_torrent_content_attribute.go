@@ -27,6 +27,12 @@ func (torrentContentAttributeFacet[T]) Values(query.FacetContext) (map[string]st
 	return map[string]string{}, nil
 }
 
+// GroupByField returns the underlying column expression so this facet's counts
+// can be computed with a single GROUP BY query.
+func (f torrentContentAttributeFacet[T]) GroupByField(ctx query.FacetContext) field.Expr {
+	return f.field(ctx.Query())
+}
+
 func (f torrentContentAttributeFacet[T]) Criteria(filter query.FacetFilter) []query.Criteria {
 	return []query.Criteria{
 		query.GenCriteria(func(ctx query.DBContext) (query.Criteria, error) {
