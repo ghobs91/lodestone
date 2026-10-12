@@ -43,7 +43,9 @@ const initialResult: Result = {
   error: null,
 };
 
-const pollInterval = 10000;
+// pollInterval is intentionally conservative: the health query fans out to a
+// number of checks on the server, and every open tab polls it independently.
+const pollInterval = 30000;
 
 export class HealthService {
   private apollo = inject(Apollo);
