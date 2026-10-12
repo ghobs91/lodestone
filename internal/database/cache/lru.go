@@ -60,7 +60,15 @@ type inMemoryCacher struct {
 
 func (c *inMemoryCacher) Get(ctx context.Context, key string) *caches.Query {
 	m := cacheModeFromContext(ctx)
-	if m == ModeNoCache || m == ModeWarm {
+	if m == ModeNoCache {
+		// A query explicitly asking not to be served from the cache (e.g. a
+		// user-triggered refresh) also invalidates any existing entry, so the
+		// stale result is not served for the remainder of its TTL.
+		c.lru.Remove(key)
+		return nil
+	}
+
+	if m == ModeWarm {
 		return nil
 	}
 
@@ -71,7 +79,7 @@ func (c *inMemoryCacher) Get(ctx context.Context, key string) *caches.Query {
 
 	c.logger.Debugw("cache hit", "key", key)
 
-	return val
+	return deepCopyQuery(val)
 }
 
 func (c *inMemoryCacher) Store(ctx context.Context, key string, val *caches.Query) error {
