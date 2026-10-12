@@ -1,7 +1,7 @@
 package classifier
 
 import (
-	"sync"
+	lru "github.com/hashicorp/golang-lru/v2"
 
 	"github.com/agnivade/levenshtein"
 	"github.com/ghobs91/lodestone/internal/regex"
@@ -13,7 +13,13 @@ import (
 // Short titles (e.g. "Her") get a tight threshold of 2, while long titles
 // (e.g. "The Lord of the Rings: The Return of the King") get up to 8.
 func levenshteinMaxThreshold(target string) int {
-	n := len(levenshteinNormalizeString(target))
+	return levenshteinThresholdForNormalized(levenshteinNormalizeString(target))
+}
+
+// levenshteinThresholdForNormalized computes the threshold from an already
+// normalized target, avoiding a second normalization/cache lookup.
+func levenshteinThresholdForNormalized(normTarget string) int {
+	n := len(normTarget)
 	t := n * 15 / 100
 	if t < 2 {
 		return 2
@@ -25,11 +31,10 @@ func levenshteinMaxThreshold(target string) int {
 }
 
 func levenshteinFindBestMatch[T any](target string, items []T, getCandidates func(T) []string) (t T, ok bool) {
-	threshold := levenshteinMaxThreshold(target)
+	normTarget := levenshteinNormalizeString(target)
+	threshold := levenshteinThresholdForNormalized(normTarget)
 	minDistance := threshold + 1
 	bestMatch := -1
-
-	normTarget := levenshteinNormalizeString(target)
 
 	for i, item := range items {
 		candidates := getCandidates(item)
@@ -83,45 +88,38 @@ func levenshteinFindMinDistanceNorm(normTarget string, candidates []string) int 
 	return minDistance
 }
 
-// levenshteinCache is a small LRU-ish cache for normalized strings.  Since
-// the same titles appear repeatedly during classification batches, caching
-// the (expensive) unidecode + regex normalization avoids redundant work.
-var levenshteinCache = &levenshteinNormCache{
-	entries: make(map[string]string),
-}
+// levenshteinCacheSize bounds the normalization cache. It holds both the
+// (rare) target titles and the (many) candidate titles seen during a batch.
+const levenshteinCacheSize = 10_000
+
+// levenshteinCache caches normalized strings. The same titles appear repeatedly
+// during classification batches, so caching the (expensive) unidecode + regex
+// normalization avoids redundant work. An LRU with O(1) eviction is used so a
+// full cache never triggers an expensive scan under the lock (which previously
+// thrashed the cache on nearly every miss once it filled up).
+var levenshteinCache = newLevenshteinNormCache(levenshteinCacheSize)
 
 type levenshteinNormCache struct {
-	mu      sync.RWMutex
-	entries map[string]string
+	lru *lru.Cache[string, string]
+}
+
+func newLevenshteinNormCache(size int) *levenshteinNormCache {
+	c, err := lru.New[string, string](size)
+	if err != nil {
+		// Only fails for a non-positive size, which is a programming error.
+		panic(err)
+	}
+
+	return &levenshteinNormCache{lru: c}
 }
 
 func (c *levenshteinNormCache) get(raw string) string {
-	c.mu.RLock()
-	norm, ok := c.entries[raw]
-	c.mu.RUnlock()
-	if ok {
+	if norm, ok := c.lru.Get(raw); ok {
 		return norm
 	}
 
-	norm = regex.NormalizeString(unidecode.Unidecode(raw))
-
-	c.mu.Lock()
-	// Cap the cache at a reasonable size so it doesn't grow unbounded
-	// during long-running classification sweeps. Once full, evict a chunk
-	// to make room so new titles still benefit from caching instead of
-	// recomputing normalization on every miss.
-	if len(c.entries) >= 10_000 {
-		i := 0
-		for k := range c.entries {
-			delete(c.entries, k)
-			i++
-			if i >= 1_000 {
-				break
-			}
-		}
-	}
-	c.entries[raw] = norm
-	c.mu.Unlock()
+	norm := regex.NormalizeString(unidecode.Unidecode(raw))
+	c.lru.Add(raw, norm)
 
 	return norm
 }

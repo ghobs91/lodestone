@@ -40,18 +40,24 @@ type executionContext struct {
 	context.Context
 	dependencies
 	flags     map[string]ref.Val
+	flagVars  map[string]any
 	workflows map[string]action
 	torrent   model.Torrent
 	torrentPb *protobuf.Torrent
 	result    classification.Result
-	resultPb  *protobuf.Classification
 }
 
 func (c executionContext) withResult(result classification.Result) executionContext {
 	c.result = result
-	c.resultPb = protobuf.NewClassification(result)
 
 	return c
+}
+
+// resultPb lazily converts the current classification result to its protobuf
+// representation. It is only needed by CEL conditions that reference `result`,
+// so building it eagerly on every action was wasted work.
+func (c executionContext) resultPb() *protobuf.Classification {
+	return protobuf.NewClassification(c.result)
 }
 
 func (c compilerContext) child(pathPart string, source any) compilerContext {

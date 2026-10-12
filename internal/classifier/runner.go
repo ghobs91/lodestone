@@ -68,10 +68,22 @@ func (r runner) Run(ctx context.Context, workflow string, flags Flags, t model.T
 		dependencies: r.dependencies,
 		workflows:    r.workflows,
 		flags:        cfs,
+		flagVars:     flagVars(cfs),
 		torrent:      t,
 		torrentPb:    protobuf.NewTorrent(t),
 		result:       cl,
 	}
 
 	return w.run(exCtx)
+}
+
+// flagVars builds the `flags.*` variables used by CEL expressions once per run,
+// instead of re-formatting and rebuilding them on every condition evaluation.
+func flagVars(flags map[string]ref.Val) map[string]any {
+	vars := make(map[string]any, len(flags))
+	for k, v := range flags {
+		vars["flags."+k] = v
+	}
+
+	return vars
 }

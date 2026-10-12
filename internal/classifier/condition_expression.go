@@ -62,13 +62,13 @@ func (expressionCondition) compileCondition(ctx compilerContext) (condition, err
 
 	return condition{
 		check: func(ctx executionContext) (bool, error) {
-			vars := map[string]any{
-				"torrent": ctx.torrentPb,
-				"result":  ctx.resultPb,
+			vars := make(map[string]any, len(ctx.flagVars)+2)
+			for k, v := range ctx.flagVars {
+				vars[k] = v
 			}
-			for k, v := range ctx.flags {
-				vars["flags."+k] = v
-			}
+			vars["torrent"] = ctx.torrentPb
+			vars["result"] = ctx.resultPb()
+
 			result, _, err := prg.ContextEval(ctx.Context, vars)
 			if err != nil {
 				return false, err
