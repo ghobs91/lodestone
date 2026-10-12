@@ -1,10 +1,18 @@
 package httpserver
 
+import "time"
+
 type Config struct {
 	LocalAddress string
 	GinMode      string
 	Cors         CorsConfig
 	Options      []string
+
+	// ReadHeaderTimeout bounds how long a client may take to send request
+	// headers, mitigating slowloris-style connections.
+	ReadHeaderTimeout time.Duration
+	// IdleTimeout bounds how long an idle keep-alive connection is retained.
+	IdleTimeout time.Duration
 }
 
 type CorsConfig struct {
@@ -59,5 +67,11 @@ func NewDefaultConfig() Config {
 			Debug:          true,
 		},
 		Options: []string{"*"},
+		// Bound connections so slow clients cannot hold server resources
+		// indefinitely. ReadTimeout/WriteTimeout are deliberately left at 0:
+		// the GraphQL server serves WebSocket subscriptions, whose lifetime is
+		// governed by the connection, not a single request/response.
+		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       120 * time.Second,
 	}
 }
