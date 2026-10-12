@@ -16,16 +16,18 @@ import (
 )
 
 const (
-	QueueJobStatusPending   QueueJobStatus = "pending"
-	QueueJobStatusProcessed QueueJobStatus = "processed"
-	QueueJobStatusRetry     QueueJobStatus = "retry"
-	QueueJobStatusFailed    QueueJobStatus = "failed"
+	QueueJobStatusPending    QueueJobStatus = "pending"
+	QueueJobStatusProcessing QueueJobStatus = "processing"
+	QueueJobStatusProcessed  QueueJobStatus = "processed"
+	QueueJobStatusRetry      QueueJobStatus = "retry"
+	QueueJobStatusFailed     QueueJobStatus = "failed"
 )
 
 var ErrInvalidQueueJobStatus = fmt.Errorf("not a valid QueueJobStatus, try [%s]", strings.Join(_QueueJobStatusNames, ", "))
 
 var _QueueJobStatusNames = []string{
 	string(QueueJobStatusPending),
+	string(QueueJobStatusProcessing),
 	string(QueueJobStatusProcessed),
 	string(QueueJobStatusRetry),
 	string(QueueJobStatusFailed),
@@ -42,6 +44,7 @@ func QueueJobStatusNames() []string {
 func QueueJobStatusValues() []QueueJobStatus {
 	return []QueueJobStatus{
 		QueueJobStatusPending,
+		QueueJobStatusProcessing,
 		QueueJobStatusProcessed,
 		QueueJobStatusRetry,
 		QueueJobStatusFailed,
@@ -61,10 +64,11 @@ func (x QueueJobStatus) IsValid() bool {
 }
 
 var _QueueJobStatusValue = map[string]QueueJobStatus{
-	"pending":   QueueJobStatusPending,
-	"processed": QueueJobStatusProcessed,
-	"retry":     QueueJobStatusRetry,
-	"failed":    QueueJobStatusFailed,
+	"pending":    QueueJobStatusPending,
+	"processing": QueueJobStatusProcessing,
+	"processed":  QueueJobStatusProcessed,
+	"retry":      QueueJobStatusRetry,
+	"failed":     QueueJobStatusFailed,
 }
 
 // ParseQueueJobStatus attempts to convert a string to a QueueJobStatus.

@@ -69,12 +69,33 @@ func (s *server) Start(ctx context.Context) (err error) {
 		}
 	}()
 
+	// Requeue any jobs left mid-flight by a previous run, then start processing.
+	s.reclaimStaleJobs(ctx)
+
 	// Start LISTEN/NOTIFY listener for instant job wakeup.
 	go s.runListener(ctx, listenerChans)
 
 	go s.runGarbageCollection(ctx)
 
 	return
+}
+
+// reclaimStaleJobs resets jobs stuck in 'processing' back to 'pending'. A job is
+// only marked 'processing' while a handler is running, so if we are starting up
+// and find jobs in that state they were abandoned by a previous process (crash
+// or unclean shutdown) and should be retried.
+func (s *server) reclaimStaleJobs(ctx context.Context) {
+	res, err := s.query.QueueJob.WithContext(ctx).Where(
+		s.query.QueueJob.Status.Eq(string(model.QueueJobStatusProcessing)),
+	).Update(s.query.QueueJob.Status, string(model.QueueJobStatusPending))
+	if err != nil {
+		s.logger.Warnw("failed to reclaim stale queue jobs", "error", err)
+		return
+	}
+
+	if res.RowsAffected > 0 {
+		s.logger.Infow("reclaimed stale queue jobs left in 'processing'", "count", res.RowsAffected)
+	}
 }
 
 func (s *server) runListener(ctx context.Context, listenerChans map[string]chan pgconn.Notification) {
@@ -224,21 +245,89 @@ func (h *serverHandler) handleJob(
 	ctx context.Context,
 	conds ...gen.Condition,
 ) (jobID string, processed bool, err error) {
+	// Claim the job in a short transaction: lock the row with SKIP LOCKED, flip
+	// it to 'processing' and commit. This releases the row lock and connection
+	// immediately, instead of holding a transaction open for the whole handler
+	// (which can be minutes of network work and blocks VACUUM).
+	job, err := h.claimJob(ctx, conds...)
+	if err != nil {
+		h.logger.Error("error claiming job", "error", err)
+		return "", false, err
+	}
+	if job == nil {
+		return "", false, nil
+	}
+
+	jobID = job.ID
+
+	// Run the handler outside any transaction. A job left in 'processing' by a
+	// crash is reclaimed by reclaimStaleJobs on the next process start.
+	var jobErr error
+	if job.Deadline.Valid && job.Deadline.Time.Before(time.Now()) {
+		jobErr = ErrJobExceededDeadline
+
+		h.logger.Debugw("job deadline is in the past, skipping", "job_id", job.ID)
+	} else {
+		// check if the job is being retried and increment retry count accordingly
+		if job.Status != model.QueueJobStatusPending {
+			job.Retries++
+		}
+		// execute the queue handler of this job
+		jobErr = handler.Exec(ctx, h.Handler, *job)
+	}
+
+	job.RanAt = sql.NullTime{Time: time.Now(), Valid: true}
+
+	if jobErr != nil {
+		h.logger.Errorw("job failed", "error", jobErr)
+
+		if job.Retries < job.MaxRetries {
+			job.Status = model.QueueJobStatusRetry
+			job.RunAfter = queue.CalculateBackoff(job.Retries)
+		} else {
+			job.Status = model.QueueJobStatusFailed
+		}
+
+		job.Error = model.NewNullString(jobErr.Error())
+	} else {
+		job.Status = model.QueueJobStatusProcessed
+		processed = true
+	}
+
+	if updateErr := h.query.QueueJob.WithContext(ctx).Save(job); updateErr != nil {
+		h.logger.Error("error updating job", "error", updateErr)
+		return jobID, processed, updateErr
+	}
+
+	if processed {
+		h.logger.Debugw("job processed", "job_id", jobID)
+	}
+
+	return jobID, processed, nil
+}
+
+// claimJob selects and locks the next runnable job with SKIP LOCKED, marks it
+// 'processing' and returns it. The transaction is short-lived; the caller runs
+// the handler with the returned job outside of it.
+func (h *serverHandler) claimJob(
+	ctx context.Context,
+	conds ...gen.Condition,
+) (job *model.QueueJob, err error) {
 	err = h.query.Transaction(func(tx *dao.Query) error {
-		job, findErr := tx.QueueJob.WithContext(ctx).Where(
+		j, findErr := tx.QueueJob.WithContext(ctx).Where(
 			append(
 				conds,
-				h.query.QueueJob.Queue.Eq(h.Queue),
-				h.query.QueueJob.Status.In(
+				tx.QueueJob.Queue.Eq(h.Queue),
+				tx.QueueJob.Status.In(
 					string(model.QueueJobStatusPending),
 					string(model.QueueJobStatusRetry),
 				),
-				h.query.QueueJob.RunAfter.Lte(time.Now()),
+				tx.QueueJob.RunAfter.Lte(time.Now()),
 			)...,
 		).Order(
-			h.query.QueueJob.Status.Eq(string(model.QueueJobStatusRetry)),
-			h.query.QueueJob.Priority,
-			h.query.QueueJob.RunAfter,
+			tx.QueueJob.Status.Eq(string(model.QueueJobStatusRetry)),
+			tx.QueueJob.Priority,
+			tx.QueueJob.RunAfter,
 		).Clauses(clause.Locking{
 			Strength: "UPDATE",
 			Options:  "SKIP LOCKED",
@@ -251,51 +340,18 @@ func (h *serverHandler) handleJob(
 			return findErr
 		}
 
-		jobID = job.ID
-
-		var jobErr error
-		if job.Deadline.Valid && job.Deadline.Time.Before(time.Now()) {
-			jobErr = ErrJobExceededDeadline
-
-			h.logger.Debugw("job deadline is in the past, skipping", "job_id", job.ID)
-		} else {
-			// check if the job is being retried and increment retry count accordingly
-			if job.Status != model.QueueJobStatusPending {
-				job.Retries++
-			}
-			// execute the queue handler of this job
-			jobErr = handler.Exec(ctx, h.Handler, *job)
+		if _, updateErr := tx.QueueJob.WithContext(ctx).Where(
+			tx.QueueJob.ID.Eq(j.ID),
+		).Update(tx.QueueJob.Status, string(model.QueueJobStatusProcessing)); updateErr != nil {
+			return updateErr
 		}
 
-		job.RanAt = sql.NullTime{Time: time.Now(), Valid: true}
+		job = j
 
-		if jobErr != nil {
-			h.logger.Errorw("job failed", "error", jobErr)
-
-			if job.Retries < job.MaxRetries {
-				job.Status = model.QueueJobStatusRetry
-				job.RunAfter = queue.CalculateBackoff(job.Retries)
-			} else {
-				job.Status = model.QueueJobStatusFailed
-			}
-
-			job.Error = model.NewNullString(jobErr.Error())
-		} else {
-			job.Status = model.QueueJobStatusProcessed
-			processed = true
-		}
-
-		_, updateErr := tx.QueueJob.WithContext(ctx).Updates(job)
-
-		return updateErr
+		return nil
 	})
-	if err != nil {
-		h.logger.Error("error handling job", "error", err)
-	} else if processed {
-		h.logger.Debugw("job processed", "job_id", jobID)
-	}
 
-	return
+	return job, err
 }
 
 var ErrJobExceededDeadline = errors.New("the job did not complete before its deadline")

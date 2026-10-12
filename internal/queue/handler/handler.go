@@ -86,7 +86,10 @@ func Exec(ctx context.Context, handler Handler, job model.QueueJob) (err error) 
 	defer cancel()
 
 	errCh := make(chan error, 1)
-	done := make(chan bool)
+	// Buffered so the goroutine never blocks sending its completion signal even
+	// if the caller has already returned via the timeout branch. Otherwise each
+	// timed-out job would leak a goroutine forever.
+	done := make(chan bool, 1)
 
 	go func(ctx context.Context) {
 		defer func() {
@@ -111,7 +114,10 @@ func Exec(ctx context.Context, handler Handler, job model.QueueJob) (err error) 
 			done <- true
 		}()
 
-		errCh <- handler.Handle(ctx, job)
+		// Use the timeout context so a timed-out handler is actually cancelled
+		// (its outbound HTTP/DB work stops) rather than continuing in the
+		// background after the caller has moved on.
+		errCh <- handler.Handle(timeoutCtx, job)
 	}(ctx)
 
 	select {
