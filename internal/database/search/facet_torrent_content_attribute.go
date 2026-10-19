@@ -9,6 +9,7 @@ import (
 	"github.com/ghobs91/lodestone/internal/maps"
 	"github.com/ghobs91/lodestone/internal/model"
 	"gorm.io/gen/field"
+	"gorm.io/gorm/clause"
 )
 
 type torrentContentAttributeFacet[T attribute] struct {
@@ -27,10 +28,13 @@ func (torrentContentAttributeFacet[T]) Values(query.FacetContext) (map[string]st
 	return map[string]string{}, nil
 }
 
-// GroupByField returns the underlying column expression so this facet's counts
-// can be computed with a single GROUP BY query.
-func (f torrentContentAttributeFacet[T]) GroupByField(ctx query.FacetContext) field.Expr {
-	return f.field(ctx.Query())
+// GroupByField returns the underlying column so this facet's counts can be
+// computed with a single GROUP BY query.
+func (f torrentContentAttributeFacet[T]) GroupByField(ctx query.FacetContext) clause.Column {
+	return clause.Column{
+		Table: ctx.TableName(),
+		Name:  string(f.field(ctx.Query()).ColumnName()),
+	}
 }
 
 func (f torrentContentAttributeFacet[T]) Criteria(filter query.FacetFilter) []query.Criteria {

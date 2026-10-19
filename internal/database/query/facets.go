@@ -11,8 +11,7 @@ import (
 	"github.com/ghobs91/lodestone/internal/database/dao"
 	"github.com/ghobs91/lodestone/internal/maps"
 	"github.com/ghobs91/lodestone/internal/model"
-	"gorm.io/gen"
-	"gorm.io/gen/field"
+	"gorm.io/gorm/clause"
 )
 
 type FacetConfig interface {
@@ -35,11 +34,11 @@ type Facet interface {
 
 // FacetGroupBy is implemented by facets whose aggregation can be computed with a
 // single GROUP BY query instead of one COUNT query per distinct value. It
-// returns the column expression to group by; returning nil (or not implementing
-// this interface) falls back to per-value counting.
+// returns the column to group by; an empty column (or not implementing this
+// interface) falls back to per-value counting.
 type FacetGroupBy interface {
 	Facet
-	GroupByField(ctx FacetContext) field.Expr
+	GroupByField(ctx FacetContext) clause.Column
 }
 
 type FacetFilter map[string]struct{}
@@ -317,8 +316,8 @@ func (b optionBuilder) calculateAggregations(ctx context.Context) (Aggregations,
 			var items AggregationItems
 
 			if gb, ok := facet.(FacetGroupBy); ok {
-				if field := gb.GroupByField(fctx); field != nil {
-					grouped, groupedErr := b.aggregateFacetGroupBy(ctx, gb, field)
+				if col := gb.GroupByField(fctx); col.Name != "" {
+					grouped, groupedErr := b.aggregateFacetGroupBy(ctx, gb, col)
 					if groupedErr != nil {
 						addErr(fmt.Errorf("failed to aggregate facet '%s': %w", facet.Key(), groupedErr))
 						return
@@ -361,7 +360,7 @@ func (b optionBuilder) calculateAggregations(ctx context.Context) (Aggregations,
 func (b optionBuilder) aggregateFacetGroupBy(
 	ctx context.Context,
 	facet FacetGroupBy,
-	column field.Expr,
+	column clause.Column,
 ) (AggregationItems, error) {
 	criterias := facet.Criteria(facet.Filter())
 
@@ -378,13 +377,26 @@ func (b optionBuilder) aggregateFacetGroupBy(
 		return nil, err
 	}
 
-	sq := builder.NewSubQuery(ctx)
+	agg, ok := builder.(optionBuilder)
+	if !ok {
+		return nil, errors.New("unexpected option builder type")
+	}
 
-	sq.Scopes(func(dao gen.Dao) gen.Dao {
-		return dao.Select(column).Group(column)
-	})
+	// Select the grouped value alongside its count. The aliases must match
+	// groupByResult's fields so GORM can scan the rows.
+	agg.selections = []clause.Expr{
+		{SQL: "? AS value", Vars: []interface{}{column}},
+		{SQL: "COUNT(*) AS count"},
+	}
+	agg.groupBy = []clause.Column{column}
 
-	if preErr := builder.applyPre(sq, false); preErr != nil {
+	sq := agg.NewSubQuery(ctx)
+
+	if selectErr := agg.applySelect(sq.UnderlyingDB(), false); selectErr != nil {
+		return nil, selectErr
+	}
+
+	if preErr := agg.applyPre(sq, false); preErr != nil {
 		return nil, preErr
 	}
 
