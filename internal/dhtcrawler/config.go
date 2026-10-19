@@ -23,6 +23,11 @@ type Config struct {
 	// RescrapeThreshold is the amount of time that must pass before a torrent is rescraped
 	// to count seeders and leechers.
 	RescrapeThreshold time.Duration
+	// RemoteHealthURL, when set, makes the "dht" health check probe this URL
+	// (the crawler's /status endpoint) instead of relying on the local crawler
+	// state. The web process uses it to report the crawler's health when the
+	// crawler runs in a separate container.
+	RemoteHealthURL string
 }
 
 func NewDefaultConfig() Config {

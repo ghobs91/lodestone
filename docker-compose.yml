@@ -45,6 +45,9 @@ services:
     environment:
       - POSTGRES_HOST=postgres
       - POSTGRES_PASSWORD=postgres
+      # The crawler runs in its own container; report its DHT health by probing
+      # the crawler's /status endpoint (published by lodestone-crawler-metrics).
+      - DHT_CRAWLER_REMOTE_HEALTH_URL=http://lodestone-crawler-metrics:3335/status
     depends_on:
       postgres:
         condition: service_healthy

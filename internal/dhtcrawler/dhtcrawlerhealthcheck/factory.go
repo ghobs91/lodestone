@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ghobs91/lodestone/internal/concurrency"
+	"github.com/ghobs91/lodestone/internal/dhtcrawler"
 	"github.com/ghobs91/lodestone/internal/health"
 	"github.com/ghobs91/lodestone/internal/protocol/dht/server"
 	"go.uber.org/fx"
@@ -12,6 +13,7 @@ import (
 
 type Params struct {
 	fx.In
+	Config                 dhtcrawler.Config
 	DhtCrawlerActive       *concurrency.AtomicValue[bool]                 `name:"dht_crawler_active"`
 	DhtServerLastResponses *concurrency.AtomicValue[server.LastResponses] `name:"dht_server_last_responses"`
 	Logger                 *zap.SugaredLogger
@@ -27,7 +29,12 @@ func New(params Params) Result {
 		Option: health.WithPeriodicCheck(
 			time.Second*10,
 			time.Second*1,
-			NewCheck(params.DhtCrawlerActive, params.DhtServerLastResponses, params.Logger.Named("dht_health")),
+			NewCheck(
+				params.DhtCrawlerActive,
+				params.DhtServerLastResponses,
+				params.Config.RemoteHealthURL,
+				params.Logger.Named("dht_health"),
+			),
 		),
 	}
 }
