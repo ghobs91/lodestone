@@ -80,21 +80,61 @@ func (s *server) Start(ctx context.Context) (err error) {
 	return
 }
 
-// reclaimStaleJobs resets jobs stuck in 'processing' back to 'pending'. A job is
-// only marked 'processing' while a handler is running, so if we are starting up
-// and find jobs in that state they were abandoned by a previous process (crash
-// or unclean shutdown) and should be retried.
+// reclaimStaleJobs requeues jobs left in 'processing' by a previous process. A
+// job is only 'processing' while a handler runs, so any found at startup were
+// abandoned by a crash or unclean shutdown and should be retried.
+//
+// The unique fingerprint index only covers pending/retry jobs, so flipping a
+// processing job to pending can collide with an already-queued duplicate. We
+// therefore requeue at most one abandoned job per fingerprint (skipping any
+// that already has a pending/retry twin) and drop the rest.
 func (s *server) reclaimStaleJobs(ctx context.Context) {
-	res, err := s.query.QueueJob.WithContext(ctx).Where(
-		s.query.QueueJob.Status.Eq(string(model.QueueJobStatusProcessing)),
-	).Update(s.query.QueueJob.Status, string(model.QueueJobStatusPending))
+	processing := string(model.QueueJobStatusProcessing)
+	pending := string(model.QueueJobStatusPending)
+	retry := string(model.QueueJobStatusRetry)
+
+	var reclaimed, dropped int64
+
+	err := s.query.Transaction(func(tx *dao.Query) error {
+		db := tx.QueueJob.WithContext(ctx).UnderlyingDB()
+
+		requeue := db.Exec(`
+			UPDATE queue_jobs SET status = ?
+			WHERE id IN (
+				SELECT DISTINCT ON (fingerprint) id
+				FROM queue_jobs p
+				WHERE p.status = ?
+				  AND NOT EXISTS (
+					SELECT 1 FROM queue_jobs q
+					WHERE q.fingerprint = p.fingerprint
+					  AND q.status IN (?, ?)
+				  )
+				ORDER BY fingerprint, id
+			)`, pending, processing, pending, retry)
+		if requeue.Error != nil {
+			return requeue.Error
+		}
+
+		reclaimed = requeue.RowsAffected
+
+		// Anything still 'processing' was a duplicate; drop it.
+		drop := db.Exec(`DELETE FROM queue_jobs WHERE status = ?`, processing)
+		if drop.Error != nil {
+			return drop.Error
+		}
+
+		dropped = drop.RowsAffected
+
+		return nil
+	})
 	if err != nil {
 		s.logger.Warnw("failed to reclaim stale queue jobs", "error", err)
 		return
 	}
 
-	if res.RowsAffected > 0 {
-		s.logger.Infow("reclaimed stale queue jobs left in 'processing'", "count", res.RowsAffected)
+	if reclaimed > 0 || dropped > 0 {
+		s.logger.Infow("reclaimed stale queue jobs left in 'processing'",
+			"requeued", reclaimed, "dropped_duplicates", dropped)
 	}
 }
 
