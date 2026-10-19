@@ -8,6 +8,7 @@ import (
 	"github.com/ghobs91/lodestone/internal/classifier"
 	"github.com/ghobs91/lodestone/internal/processor/batch"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func (m manager) EnqueueReprocessTorrentsBatch(ctx context.Context, req EnqueueReprocessTorrentsBatchRequest) error {
@@ -44,6 +45,8 @@ func (m manager) EnqueueReprocessTorrentsBatch(ctx context.Context, req EnqueueR
 			}
 		}
 
-		return tx.WithContext(ctx).Create(&job).Error
+		return tx.WithContext(ctx).Clauses(clause.OnConflict{
+			DoNothing: true,
+		}).Create(&job).Error
 	})
 }

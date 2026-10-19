@@ -283,7 +283,9 @@ func (i *activeImport) persistItems(items ...Item) error {
 			return createTorrentsTorrentSourcesErr
 		}
 
-		return tx.QueueJob.Create(&job)
+		return tx.QueueJob.Clauses(clause.OnConflict{
+			DoNothing: true,
+		}).Create(&job)
 	})
 }
 

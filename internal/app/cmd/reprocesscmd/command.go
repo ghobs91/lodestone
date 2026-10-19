@@ -16,6 +16,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"gorm.io/gorm/clause"
 )
 
 type Params struct {
@@ -129,7 +130,9 @@ func (p Params) action(ctx *cli.Context) error {
 		return err
 	}
 
-	if err := d.QueueJob.WithContext(ctx.Context).Create(&job); err != nil {
+	if err := d.QueueJob.WithContext(ctx.Context).Clauses(clause.OnConflict{
+		DoNothing: true,
+	}).Create(&job); err != nil {
 		return err
 	}
 

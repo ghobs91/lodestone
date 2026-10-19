@@ -127,7 +127,11 @@ func (c *crawler) runPersistTorrents(ctx context.Context) {
 						return err
 					}
 				}
-				return tx.WithContext(ctx).QueueJob.CreateInBatches(queueJobsToPersist, 10)
+				return tx.WithContext(ctx).QueueJob.Clauses(clause.OnConflict{
+					// A classify job for the same batch may already be queued or
+					// in flight; skip it rather than failing the whole transaction.
+					DoNothing: true,
+				}).CreateInBatches(queueJobsToPersist, 10)
 			}); persistErr != nil {
 				c.logger.Errorf("error persisting torrents: %s", persistErr)
 			} else {

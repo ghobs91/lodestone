@@ -14,6 +14,7 @@ import (
 	"github.com/ghobs91/lodestone/internal/queue/handler"
 	"go.uber.org/fx"
 	"gorm.io/gen"
+	"gorm.io/gorm/clause"
 )
 
 type Params struct {
@@ -145,6 +146,7 @@ func New(p Params) Result {
 					if len(queueJobs) > 0 {
 						if createErr := d.QueueJob.
 							WithContext(ctx).
+							Clauses(clause.OnConflict{DoNothing: true}).
 							Create(queueJobs...); createErr != nil {
 							return createErr
 						}
