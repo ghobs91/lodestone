@@ -334,7 +334,20 @@ func (h *serverHandler) handleJob(
 		processed = true
 	}
 
-	if updateErr := h.query.QueueJob.WithContext(ctx).Save(job); updateErr != nil {
+	// Use a targeted UPDATE rather than Save: Save issues an
+	// INSERT ... ON CONFLICT (id) DO UPDATE, and because the row is currently
+	// 'processing' (which is part of the unique fingerprint index) that INSERT
+	// also conflicts on the fingerprint index, which ON CONFLICT (id) does not
+	// handle — leaving the job stuck in 'processing'.
+	if _, updateErr := h.query.QueueJob.WithContext(ctx).Where(
+		h.query.QueueJob.ID.Eq(job.ID),
+	).Updates(map[string]interface{}{
+		"status":    job.Status,
+		"retries":   job.Retries,
+		"run_after": job.RunAfter,
+		"ran_at":    job.RanAt,
+		"error":     job.Error,
+	}); updateErr != nil {
 		h.logger.Error("error updating job", "error", updateErr)
 		return jobID, processed, updateErr
 	}
