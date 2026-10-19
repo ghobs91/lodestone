@@ -27,9 +27,26 @@ sysctl -w net.ipv4.ip_local_port_range="1024 65535"
 
 To make these settings persist across reboots, add them to `/etc/sysctl.conf` or `/etc/sysctl.d/99-lodestone.conf`.
 
-### Host networking
+### Container networking
 
-The `docker-compose.yml` uses `network_mode: host` for the lodestone service. This bypasses Docker's NAT/masquerading layer entirely — DHT traffic goes directly through the host's network stack without creating per-flow conntrack entries in Docker's bridge. Combined with the kernel tuning above, this prevents Lodestone's traffic from starving other containers.
+The compose stack splits lodestone into two processes so the DHT crawler and the
+Web UI each get the networking they need:
+
+- `lodestone-crawler` runs with `network_mode: host`. The crawler sends and
+  receives a lot of DHT UDP; on Docker Desktop (macOS/Windows) the bridge NAT
+  breaks DHT hash discovery, so the crawler needs host networking.
+- `lodestone-web` runs in bridge mode and publishes port `3333`, so the Web UI /
+  GraphQL API is reachable from the host, including its LAN/Tailscale address.
+  It also runs the queue/classifier.
+- `lodestone-crawler-metrics` publishes the crawler's own metrics/health endpoint
+  (`:3335`) through a small socat proxy, since host-networked containers cannot
+  publish ports themselves.
+
+Both lodestone processes share the same Postgres.
+
+On a Linux Docker host you can instead run a single lodestone service with
+`network_mode: host` (combined with the kernel tuning above), which bypasses
+Docker's conntrack table entirely.
 
 ### Tuning the crawler
 
