@@ -15,13 +15,14 @@ import (
 // similar to what the search cache stores, containing nested structs, slices,
 // maps and null wrappers. It must not panic and must fully detach the copy.
 func TestDeepCopyRealModel(t *testing.T) {
+	publishedAt := time.Date(2024, 1, 2, 3, 4, 5, 0, time.UTC)
 	items := []model.TorrentContent{
 		{
 			ID:          "1",
 			InfoHash:    protocol.ID{1, 2, 3},
 			Languages:   model.Languages{model.Language("en"): struct{}{}},
 			Episodes:    model.Episodes{1: {1: struct{}{}}},
-			PublishedAt: time.Now(),
+			PublishedAt: publishedAt,
 			Tsv:         fts.Tsvector{"a": {1: fts.TsvectorWeight('A')}},
 			Torrent: model.Torrent{
 				InfoHash: protocol.ID{1, 2, 3},
@@ -62,5 +63,11 @@ func TestDeepCopyRealModel(t *testing.T) {
 	}
 	if _, ok := items[0].Tsv["b"]; ok {
 		t.Error("copy shares Tsv map with original")
+	}
+
+	// time.Time has unexported fields; a naive deep copy would zero it and
+	// break non-null DateTime fields on cached requests.
+	if got := (*copiedItems)[0].PublishedAt; !got.Equal(publishedAt) {
+		t.Errorf("PublishedAt not preserved: got %v, want %v", got, publishedAt)
 	}
 }

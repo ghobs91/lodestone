@@ -80,6 +80,9 @@ func deepCopyValue(v reflect.Value) reflect.Value {
 
 	case reflect.Struct:
 		copied := reflect.New(v.Type()).Elem()
+		// Shallow-copy first so unexported fields (e.g. time.Time's internals)
+		// survive; then deep-copy the settable (exported) fields.
+		copied.Set(v)
 		for i := 0; i < v.NumField(); i++ {
 			if copied.Field(i).CanSet() {
 				copied.Field(i).Set(deepCopyValue(v.Field(i)))
