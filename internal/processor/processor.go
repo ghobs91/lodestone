@@ -154,17 +154,21 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 			} else {
 				torrentContent := newTorrentContent(torrent, cl)
 
-				tcID := torrentContent.InferID()
-				for id := range thisDeleteIDs {
-					if id != tcID {
-						idsToDelete = append(idsToDelete, id)
+				if isDiscardedContentType(torrentContent.ContentType) {
+					infoHashesToDelete = append(infoHashesToDelete, torrent.InfoHash)
+				} else {
+					tcID := torrentContent.InferID()
+					for id := range thisDeleteIDs {
+						if id != tcID {
+							idsToDelete = append(idsToDelete, id)
+						}
 					}
-				}
 
-				tcs = append(tcs, torrentContent)
+					tcs = append(tcs, torrentContent)
 
-				if len(cl.Tags) > 0 {
-					tagsToAdd[torrent.InfoHash] = cl.Tags
+					if len(cl.Tags) > 0 {
+						tagsToAdd[torrent.InfoHash] = cl.Tags
+					}
 				}
 			}
 		}(torrent)
@@ -173,7 +177,7 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 	wg.Wait()
 
 	if len(failedHashes) > 0 {
-		if len(tcs) == 0 {
+		if len(tcs) == 0 && len(infoHashesToDelete) == 0 {
 			return errors.Join(errs...)
 		}
 
@@ -201,7 +205,7 @@ func (c processor) Process(ctx context.Context, params MessageParams) error {
 		}
 	}
 
-	if len(tcs) == 0 {
+	if len(tcs) == 0 && len(infoHashesToDelete) == 0 {
 		return nil
 	}
 
@@ -225,6 +229,13 @@ func reenqueueDelay(currentDepth int) time.Duration {
 	default:
 		return 15 * time.Minute
 	}
+}
+
+// isDiscardedContentType reports whether torrents with the given content type
+// should be deleted instead of persisted. Unknown content types are not stored,
+// and XXX content is never stored.
+func isDiscardedContentType(contentType model.NullContentType) bool {
+	return !contentType.Valid || contentType.ContentType == model.ContentTypeXxx
 }
 
 func newTorrentContent(t model.Torrent, c classification.Result) model.TorrentContent {

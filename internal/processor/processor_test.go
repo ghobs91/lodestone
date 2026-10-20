@@ -3,7 +3,30 @@ package processor
 import (
 	"testing"
 	"time"
+
+	"github.com/ghobs91/lodestone/internal/model"
 )
+
+func TestIsDiscardedContentType(t *testing.T) {
+	tests := []struct {
+		name        string
+		contentType model.NullContentType
+		want        bool
+	}{
+		{"unknown", model.NullContentType{}, true},
+		{"xxx", model.NewNullContentType(model.ContentTypeXxx), true},
+		{"movie", model.NewNullContentType(model.ContentTypeMovie), false},
+		{"tv_show", model.NewNullContentType(model.ContentTypeTvShow), false},
+		{"music", model.NewNullContentType(model.ContentTypeMusic), false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isDiscardedContentType(tt.contentType); got != tt.want {
+				t.Errorf("isDiscardedContentType(%v) = %v, want %v", tt.contentType, got, tt.want)
+			}
+		})
+	}
+}
 
 func TestReenqueueDelay(t *testing.T) {
 	tests := []struct {
