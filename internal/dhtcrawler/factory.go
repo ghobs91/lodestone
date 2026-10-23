@@ -85,7 +85,7 @@ func New(params Params) Result {
 						oldPeerThreshold:             time.Minute * 15,
 						discoveredNodes:              params.DiscoveredNodes,
 						nodesForPing: concurrency.NewBufferedConcurrentChannel[ktable.Node](
-							scalingFactor, scalingFactor),
+							10*scalingFactor, scalingFactor),
 						nodesForFindNode: concurrency.NewBufferedConcurrentChannel[ktable.Node](
 							10*scalingFactor, 10*scalingFactor),
 						nodesForSampleInfoHashes: concurrency.NewBufferedConcurrentChannel[ktable.Node](

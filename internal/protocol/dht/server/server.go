@@ -81,12 +81,17 @@ func (s *server) read(ctx context.Context) {
 
 		n, from, err := s.socket.Receive(buffer)
 		if err != nil {
-			// Socket is probably closed; if we're not shutting down then panic
-			if ctx.Err() == nil {
-				panic(fmt.Errorf("socket read error: %w", err))
+			if ctx.Err() != nil {
+				return
 			}
 
-			return
+			// UDP sockets surface ICMP errors such as "no route to host"
+			// as read errors. These are transient and must not kill the
+			// reader, otherwise a single unreachable peer stops the crawler.
+			s.logger.Debugw("socket read error", "error", err)
+			time.Sleep(100 * time.Millisecond)
+
+			continue
 		}
 
 		if n == 0 {
