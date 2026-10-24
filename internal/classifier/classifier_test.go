@@ -183,6 +183,70 @@ func TestClassifier(t *testing.T) {
 		},
 		{
 			torrent: model.Torrent{
+				Name:        "The Regular Movie 1080p.mkv",
+				FilesStatus: model.FilesStatusSingle,
+				Extension:   model.NewNullString("mkv"),
+				Size:        1000000000,
+			},
+			prepareMocks: func(mocks testClassifierMocks) {
+				mocks.tmdbClient.On(
+					"SearchMovie",
+					matchContext,
+					tmdb.SearchMovieRequest{
+						Query:        "The Regular Movie",
+						IncludeAdult: true,
+					},
+				).
+					Return(tmdb.SearchMovieResponse{}, nil)
+			},
+			expected: classification.Result{
+				ContentAttributes: classification.ContentAttributes{
+					BaseTitle:       model.NewNullString("The Regular Movie"),
+					VideoResolution: model.NewNullVideoResolution(model.VideoResolutionV1080p),
+				},
+			},
+		},
+		{
+			torrent: model.Torrent{
+				Name:        "Track 01.mp3",
+				FilesStatus: model.FilesStatusSingle,
+				Extension:   model.NewNullString("mp3"),
+				Size:        10_000_000,
+			},
+			expected: classification.Result{
+				ContentAttributes: classification.ContentAttributes{
+					ContentType: model.NewNullContentType(model.ContentTypeMusic),
+				},
+			},
+		},
+		{
+			torrent: model.Torrent{
+				Name:        "Audiobook - Some Book.mp3",
+				FilesStatus: model.FilesStatusSingle,
+				Extension:   model.NewNullString("mp3"),
+				Size:        60_000_000,
+			},
+			expected: classification.Result{
+				ContentAttributes: classification.ContentAttributes{
+					ContentType: model.NewNullContentType(model.ContentTypeAudiobook),
+				},
+			},
+		},
+		{
+			torrent: model.Torrent{
+				Name:        "Some Book.m4b",
+				FilesStatus: model.FilesStatusSingle,
+				Extension:   model.NewNullString("m4b"),
+				Size:        60_000_000,
+			},
+			expected: classification.Result{
+				ContentAttributes: classification.ContentAttributes{
+					ContentType: model.NewNullContentType(model.ContentTypeAudiobook),
+				},
+			},
+		},
+		{
+			torrent: model.Torrent{
 				Name:        "The XXX Movie 1080p.mkv",
 				FilesStatus: model.FilesStatusSingle,
 				Extension:   model.NewNullString("mkv"),

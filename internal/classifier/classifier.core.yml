@@ -154,9 +154,14 @@ extensions:
     - tiff
     - ico
   music:
+    - aac
     - ape
     - dsf
     - flac
+    - m4a
+    - mp3
+    - ogg
+    - wav
   software:
     - apk
     - app

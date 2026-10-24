@@ -2,6 +2,7 @@ package parsers
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/ghobs91/lodestone/internal/classifier/classification"
 	"github.com/ghobs91/lodestone/internal/keywords"
@@ -176,14 +177,88 @@ func ParseTitleYearEpisodes(
 	return "", 0, nil, "", classification.ErrUnmatched
 }
 
+// videoTitleTags are release/quality tags that bound a title when the name has
+// no year or episode pattern to delimit it. Keep this list to tags that are
+// very unlikely to be part of a real title (e.g. don't include "web", "tv",
+// "hd" or "sd").
+var videoTitleTags = map[string]struct{}{
+	"1080p": {}, "720p": {}, "2160p": {}, "1440p": {}, "480p": {},
+	"360p": {}, "540p": {}, "576p": {}, "4320p": {}, "4k": {}, "8k": {},
+	"uhd": {}, "fhd": {},
+	"web-dl": {}, "webrip": {}, "web-rip": {}, "bluray": {}, "blu-ray": {},
+	"brrip": {}, "bdrip": {}, "bdremux": {}, "dvdrip": {}, "dvd5": {},
+	"dvd9": {}, "hdtv": {}, "hdrip": {}, "remux": {},
+	"x264": {}, "x265": {}, "h264": {}, "h265": {}, "hevc": {}, "avc": {},
+	"xvid": {}, "divx": {}, "mpeg2": {}, "mpeg4": {},
+	"hdr": {}, "hdr10": {}, "10bit": {}, "8bit": {},
+	"dts": {}, "ac3": {}, "truehd": {}, "atmos": {}, "ddp5": {}, "ddp7": {},
+	"imax": {},
+}
+
+// trimVideoExtension removes a trailing video container extension from a
+// single-file torrent name, so "Some Movie 1080p.mkv" parses the same as the
+// folder name "Some Movie 1080p".
+func trimVideoExtension(name string) string {
+	ext := model.FileExtensionFromPath(name)
+	if !ext.Valid {
+		return name
+	}
+
+	fileType := model.FileTypeFromExtension(ext.String)
+	if !fileType.Valid || fileType.FileType != model.FileTypeVideo {
+		return name
+	}
+
+	if i := strings.LastIndex(name, "."); i >= 0 {
+		return name[:i]
+	}
+
+	return name
+}
+
+// cleanTitleWithoutYear removes release/quality tags from a title that has no
+// year or episode pattern to bound it. It deliberately keeps the title so it
+// can still be searched on TMDB.
+func cleanTitleWithoutYear(title string) string {
+	parts := strings.Fields(title)
+
+	for i, part := range parts {
+		lower := strings.ToLower(strings.Trim(part, "[](){}.,;:!?\"'"))
+		if lower == "" {
+			continue
+		}
+
+		if _, ok := videoTitleTags[lower]; ok {
+			parts = parts[:i]
+			break
+		}
+
+		matched := false
+		for tag := range videoTitleTags {
+			if strings.HasPrefix(lower, tag+"-") {
+				parts = parts[:i]
+				matched = true
+				break
+			}
+		}
+		if matched {
+			break
+		}
+	}
+
+	return strings.TrimRight(strings.Join(parts, " "), " -._")
+}
+
 func ParseVideoContent(torrent model.Torrent, result classification.Result) (classification.ContentAttributes, error) {
-	title, year, episodes, rest, err := ParseTitleYearEpisodes(result.ContentType, torrent.Name)
+	input := trimVideoExtension(torrent.Name)
+
+	title, year, episodes, rest, err := ParseTitleYearEpisodes(result.ContentType, input)
 	if err != nil {
 		if !result.ContentType.Valid {
 			return classification.ContentAttributes{}, err
 		}
 
-		rest = torrent.Name
+		rest = input
 	}
 
 	ct := model.NullContentType{}
@@ -199,11 +274,20 @@ func ParseVideoContent(torrent model.Torrent, result classification.Result) (cla
 
 	if ct.ContentType != model.ContentTypeTvShow {
 		episodes = nil
+	}
 
-		if year.IsNil() {
-			title = ""
-			rest = torrent.Name
-		}
+	switch {
+	case year.IsNil() && len(episodes) == 0 &&
+		(!ct.Valid || ct.ContentType == model.ContentTypeMovie || ct.ContentType == model.ContentTypeTvShow):
+		// Keep the title for a TMDB search even without a year, but strip
+		// release/quality tags and the file extension.
+		title = cleanTitleWithoutYear(title)
+		rest = input
+	case year.IsNil() && ct.ContentType != model.ContentTypeTvShow:
+		// Preserve the old behavior for non-movie/TV types such as xxx:
+		// don't use their title for a by-name search.
+		title = ""
+		rest = input
 	}
 
 	attrs := classification.ContentAttributes{
