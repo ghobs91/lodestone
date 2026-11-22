@@ -22,6 +22,8 @@ services:
       - POSTGRES_PASSWORD=postgres
       # Crawler's own HTTP server (metrics/health/pprof) on a second port.
       - HTTP_SERVER_LOCAL_ADDRESS=:13335
+      # Upstream default is 10; this repo defaults to 2 (5x less concurrency).
+      - DHT_CRAWLER_SCALING_FACTOR=10
     depends_on:
       postgres:
         condition: service_healthy
