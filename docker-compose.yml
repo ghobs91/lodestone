@@ -11,7 +11,7 @@
 services:
   lodestone-crawler:
     container_name: lodestone-crawler
-    image: ghcr.io/ghobs91/lodestone:latest
+    image: lodestone:current
     volumes:
       - ./config:/root/.config/lodestone
       - ./data/lodestone:/root/.local/share/lodestone
@@ -37,7 +37,7 @@ services:
 
   lodestone-web:
     container_name: lodestone-web
-    image: ghcr.io/ghobs91/lodestone:latest
+    image: lodestone:current
     volumes:
       - ./config:/root/.config/lodestone
       - ./data/lodestone:/root/.local/share/lodestone

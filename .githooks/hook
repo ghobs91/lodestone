@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+#
+# Repository git hooks, wired up by scripts/install-hooks.sh via core.hooksPath.
+#
+# post-commit: roll the commit out to every lodestone host. Runs detached so
+# `git commit` returns immediately; the result lands in .deploy/last.log and a
+# non-empty .deploy/FAILED marker is left behind on failure.
+#
+set -uo pipefail
+
+# This file is reached through a symlink in .git/hooks/, so $BASH_SOURCE points
+# into .git/ and cannot be used to find the repo root. Ask git instead.
+REPO_DIR="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -z "$REPO_DIR" ]; then
+  exit 0
+fi
+
+case "$(basename "$0")" in
+  post-commit)
+    [ "${LODESTONE_SKIP_DEPLOY:-0}" = "1" ] && exit 0
+    [ -x "$REPO_DIR/scripts/deploy.sh" ] || exit 0
+
+    mkdir -p "$REPO_DIR/.deploy"
+    rm -f "$REPO_DIR/.deploy/FAILED"
+
+    # Serialise deploys: a burst of commits should not stack up six concurrent
+    # docker builds. If one is already running, skip and say so.
+    if ! mkdir "$REPO_DIR/.deploy/lock" 2>/dev/null; then
+      echo "deploy already in progress, skipping $(git describe --always --dirty)" \
+        >>"$REPO_DIR/.deploy/last.log"
+      exit 0
+    fi
+
+    (
+      trap 'rmdir "$REPO_DIR/.deploy/lock" 2>/dev/null' EXIT
+      {
+        echo "=== deploy for $(git describe --always --dirty) at $(date -u +%FT%TZ)"
+        if ! "$REPO_DIR/scripts/deploy.sh"; then
+          echo "FAILED $(git describe --always --dirty)" >"$REPO_DIR/.deploy/FAILED"
+          echo "=== deploy FAILED at $(date -u +%FT%TZ)"
+        else
+          echo "=== deploy ok at $(date -u +%FT%TZ)"
+        fi
+      } >>"$REPO_DIR/.deploy/last.log" 2>&1
+    ) </dev/null >/dev/null 2>&1 &
+
+    echo "lodestone: deploying $(git describe --always --dirty) in the background"
+    echo "lodestone: progress in .deploy/last.log"
+    ;;
+esac
+
+exit 0
