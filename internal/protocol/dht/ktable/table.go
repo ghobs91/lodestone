@@ -7,6 +7,7 @@ import (
 
 	"github.com/ghobs91/lodestone/internal/protocol"
 	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable/btree"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 )
 
 type ID = protocol.ID
@@ -18,6 +19,11 @@ type TableOrigin interface {
 type TableCommand interface {
 	PutNode(id ID, addr netip.AddrPort, options ...NodeOption) btree.PutResult
 	DropNode(id ID, reason error) bool
+	// FailAddr remembers that a query to this address failed, so node discovery
+	// stops re-feeding it for a while. Node discovery surfaces the same dead
+	// addresses over and over; without this the crawler spends almost all of its
+	// query budget re-probing peers that will never answer.
+	FailAddr(addr netip.Addr)
 	PutHash(id ID, peers []HashPeer, options ...HashOption) btree.PutResult
 }
 
@@ -58,6 +64,11 @@ type table struct {
 	nodes   nodeKeyspace
 	hashes  hashKeyspace
 	addrs   *reverseMap
+
+	// failedAddrs holds addresses that recently failed a query. It is bounded
+	// and self-expiring, and is consulted by FilterKnownAddrs so discovery does
+	// not keep renewing the same dead peers.
+	failedAddrs *expirable.LRU[netip.Addr, struct{}]
 }
 
 func (t *table) Origin() ID {
@@ -92,6 +103,14 @@ func (t *table) DropNode(id ID, reason error) bool {
 		ID:     id,
 		Reason: reason,
 	}.execReturn(t)
+}
+
+func (t *table) FailAddr(addr netip.Addr) {
+	if !addr.IsValid() || t.failedAddrs == nil {
+		return
+	}
+
+	t.failedAddrs.Add(addr, struct{}{})
 }
 
 func (t *table) PutHash(id ID, peers []HashPeer, options ...HashOption) btree.PutResult {

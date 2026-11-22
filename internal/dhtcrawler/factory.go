@@ -40,7 +40,9 @@ type Result struct {
 
 	DhtCrawlerActive *concurrency.AtomicValue[bool] `name:"dht_crawler_active"`
 
-	PersistedTotal prometheus.Collector `group:"prometheus_collectors"`
+	PersistedTotal  prometheus.Collector `group:"prometheus_collectors"`
+	SampleFailures  prometheus.Collector `group:"prometheus_collectors"`
+	DiscoveredAddrs prometheus.Collector `group:"prometheus_collectors"`
 }
 
 func New(params Params) Result {
@@ -54,6 +56,20 @@ func New(params Params) Result {
 		Name:      "persisted_total",
 		Help:      "A counter of persisted database entities.",
 	}, []string{"entity"})
+
+	sampleFailures := prometheus.NewCounterVec(prometheus.CounterOpts{
+		Namespace: "lodestone",
+		Subsystem: "dht_crawler",
+		Name:      "sample_infohashes_failures_total",
+		Help:      "A counter of failed sample_infohashes queries, by cause.",
+	}, []string{"reason"})
+
+	discoveredAddrs := prometheus.NewCounterVec(prometheus.CounterOpts{
+		Namespace: "lodestone",
+		Subsystem: "dht_crawler",
+		Name:      "discovered_addrs_total",
+		Help:      "A counter of discovered node addresses, by outcome.",
+	}, []string{"outcome"})
 
 	return Result{
 		Worker: worker.NewWorker(
@@ -121,6 +137,8 @@ func New(params Params) Result {
 						soughtNodeID:       &concurrency.AtomicValue[protocol.ID]{},
 						stopped:            make(chan struct{}),
 						persistedTotal:     persistedTotal,
+						sampleFailures:     sampleFailures,
+						discoveredAddrs:    discoveredAddrs,
 						logger:             params.Logger.Named("dht_crawler"),
 					}
 					c.soughtNodeID.Set(protocol.RandomNodeID())
@@ -140,6 +158,8 @@ func New(params Params) Result {
 			},
 		),
 		PersistedTotal:   persistedTotal,
+		SampleFailures:   sampleFailures,
+		DiscoveredAddrs:  discoveredAddrs,
 		DhtCrawlerActive: active,
 	}
 }

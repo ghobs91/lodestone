@@ -2,9 +2,10 @@ package dhtcrawler
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"time"
 
+	"github.com/ghobs91/lodestone/internal/protocol/dht"
 	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable"
 )
 
@@ -36,9 +37,27 @@ func (c *crawler) runSampleInfoHashes(ctx context.Context) {
 
 		res, err := c.client.SampleInfoHashes(ctx, n.Addr(), c.soughtNodeID.Get())
 		if err != nil {
-			c.kTable.BatchCommand(
-				ktable.DropNode{ID: n.ID(), Reason: fmt.Errorf("sample_infohashes failed: %w", err)},
-			)
+			var dhtErr *dht.Error
+
+			opts := []ktable.NodeOption{
+				ktable.NodeSampleInfoHashesFailed(time.Now().Add(sampleFailureBackoff)),
+			}
+
+			if errors.As(err, &dhtErr) {
+				// The node answered with a protocol error, so it is alive; it just
+				// doesn't implement BEP 51. Remember that and keep using it for
+				// find_node/get_peers instead of asking it again and again.
+				c.sampleFailures.WithLabelValues("unsupported").Inc()
+				opts = append(opts, ktable.NodeResponded(), ktable.NodeBep51Support(false))
+			} else {
+				// No response. The node may be dead, or it may answer other queries
+				// but ignore sample requests; either way it should not keep consuming
+				// the sample budget.
+				c.sampleFailures.WithLabelValues("unreachable").Inc()
+				c.kTable.FailAddr(n.Addr().Addr())
+			}
+
+			c.kTable.BatchCommand(ktable.PutNode{ID: n.ID(), Addr: n.Addr(), Options: opts})
 
 			return
 		}

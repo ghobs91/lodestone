@@ -52,10 +52,12 @@ type crawler struct {
 	blockingManager blocking.Manager
 	// soughtNodeID is a random node ID used as the target for find_node and sample_infohashes requests.
 	// It is rotated every 10 seconds.
-	soughtNodeID   *concurrency.AtomicValue[protocol.ID]
-	stopped        chan struct{}
-	persistedTotal *prometheus.CounterVec
-	logger         *zap.SugaredLogger
+	soughtNodeID    *concurrency.AtomicValue[protocol.ID]
+	stopped         chan struct{}
+	persistedTotal  *prometheus.CounterVec
+	sampleFailures  *prometheus.CounterVec
+	discoveredAddrs *prometheus.CounterVec
+	logger          *zap.SugaredLogger
 }
 
 func (c *crawler) start() {
@@ -102,6 +104,12 @@ type infoHashWithScrape struct {
 }
 
 const ignoreHashesShards = 16
+
+// sampleFailureBackoff is how long a node is left out of the sample_infohashes
+// rotation after a failed sample query. It is deliberately generous: the point
+// is to stop re-asking nodes that do not answer, and there are always other
+// candidates to spend the budget on.
+const sampleFailureBackoff = 30 * time.Minute
 
 // ignoreHashes is a sharded, rotating dual-bloom-filter set that tracks
 // info hashes the crawler has already encountered. Sharding eliminates

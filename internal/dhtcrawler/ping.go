@@ -31,8 +31,13 @@ func (c *crawler) runPing(ctx context.Context) {
 		}
 
 		if err != nil {
+			// Previously this dropped the *zero* ID, because on error there is no
+			// response to take an ID from, so DropNode was a silent no-op and nodes
+			// that were dead-but-unsilent were never pruned. The node's own ID from
+			// the routing table is the correct key.
+			c.kTable.FailAddr(n.Addr().Addr())
 			c.kTable.BatchCommand(ktable.DropNode{
-				ID:     nodeID,
+				ID:     n.ID(),
 				Reason: fmt.Errorf("failed to respond to ping: %w", err),
 			})
 		} else {

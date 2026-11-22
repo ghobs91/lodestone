@@ -121,6 +121,39 @@ func (_c *Table_DropNode_Call) RunAndReturn(run func(protocol.ID, error) bool) *
 	return _c
 }
 
+// FailAddr provides a mock function with given fields: addr
+func (_m *Table) FailAddr(addr netip.Addr) {
+	_m.Called(addr)
+}
+
+// Table_FailAddr_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FailAddr'
+type Table_FailAddr_Call struct {
+	*mock.Call
+}
+
+// FailAddr is a helper method to define mock.On call
+//   - addr netip.Addr
+func (_e *Table_Expecter) FailAddr(addr interface{}) *Table_FailAddr_Call {
+	return &Table_FailAddr_Call{Call: _e.mock.On("FailAddr", addr)}
+}
+
+func (_c *Table_FailAddr_Call) Run(run func(addr netip.Addr)) *Table_FailAddr_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(netip.Addr))
+	})
+	return _c
+}
+
+func (_c *Table_FailAddr_Call) Return() *Table_FailAddr_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *Table_FailAddr_Call) RunAndReturn(run func(netip.Addr)) *Table_FailAddr_Call {
+	_c.Run(run)
+	return _c
+}
+
 // FilterKnownAddrs provides a mock function with given fields: addrs
 func (_m *Table) FilterKnownAddrs(addrs []netip.Addr) []netip.Addr {
 	ret := _m.Called(addrs)

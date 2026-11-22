@@ -46,6 +46,7 @@ func (c *crawler) requestPeersForHash(
 ) (infoHashWithPeers, error) {
 	res, err := c.client.GetPeers(ctx, req.node, req.infoHash)
 	if err != nil {
+		c.kTable.FailAddr(req.node.Addr())
 		c.kTable.BatchCommand(ktable.DropAddr{
 			Addr:   req.node.Addr(),
 			Reason: fmt.Errorf("failed to get peers: %w", err),

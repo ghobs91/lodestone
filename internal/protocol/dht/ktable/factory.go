@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ghobs91/lodestone/internal/protocol/dht/ktable/btree"
+	"github.com/hashicorp/golang-lru/v2/expirable"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/fx"
 )
@@ -23,11 +24,19 @@ type Result struct {
 	HashesCountGauge     prometheus.Collector `group:"prometheus_collectors"`
 	HashesAddedCounter   prometheus.Collector `group:"prometheus_collectors"`
 	HashesDroppedCounter prometheus.Collector `group:"prometheus_collectors"`
+	FailedAddrsGauge     prometheus.Collector `group:"prometheus_collectors"`
 }
 
 const (
 	nodesK  = 80
 	hashesK = 80
+
+	// failedAddrCacheSize bounds the negative address cache. At the observed
+	// discovery rate (~300 candidates/s) a 15 minute TTL would otherwise hold
+	// millions of entries.
+	failedAddrCacheSize = 100_000
+	// failedAddrTTL is how long a failed address is kept out of node discovery.
+	failedAddrTTL = 15 * time.Minute
 )
 
 func New(p Params) Result {
@@ -70,14 +79,27 @@ func New(p Params) Result {
 	}
 	hashesCollector := patchPrometheusCollector("hashes", &hashes.keyspace)
 
+	// If this gauge sits at failedAddrCacheSize the negative cache is thrashing
+	// and dead addresses are being retried before their TTL expires.
+	failedAddrs := expirable.NewLRU[netip.Addr, struct{}](failedAddrCacheSize, nil, failedAddrTTL)
+	failedAddrsGauge := prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+		Namespace: namespace,
+		Subsystem: subsystem,
+		Name:      "failed_addrs_count",
+		Help:      "Number of recently-failed addresses excluded from node discovery.",
+	}, func() float64 {
+		return float64(failedAddrs.Len())
+	})
+
 	return Result{
 		Table: &table{
-			origin:  p.NodeID,
-			nodesK:  nodesK,
-			hashesK: hashesK,
-			nodes:   nodes,
-			hashes:  hashes,
-			addrs:   rm,
+			origin:      p.NodeID,
+			nodesK:      nodesK,
+			hashesK:     hashesK,
+			nodes:       nodes,
+			hashes:      hashes,
+			addrs:       rm,
+			failedAddrs: failedAddrs,
 		},
 		NodesCountGauge:      nodesCollector.CountGauge,
 		NodesAddedCounter:    nodesCollector.AddedCounter,
@@ -85,6 +107,7 @@ func New(p Params) Result {
 		HashesCountGauge:     hashesCollector.CountGauge,
 		HashesAddedCounter:   hashesCollector.AddedCounter,
 		HashesDroppedCounter: hashesCollector.DroppedCounter,
+		FailedAddrsGauge:     failedAddrsGauge,
 	}
 }
 

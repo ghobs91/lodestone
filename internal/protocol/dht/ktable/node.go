@@ -169,6 +169,21 @@ func NodeResponded() NodeOption {
 	}
 }
 
+// NodeSampleInfoHashesFailed defers further BEP 51 sample_infohashes queries to
+// this node until the given time.
+//
+// Some nodes answer find_node and get_peers but silently ignore or drop sample
+// queries. Because they stay in the routing table and remain eligible
+// candidates, they would otherwise consume a large share of the sample budget
+// indefinitely rather than just until they are evicted.
+func NodeSampleInfoHashesFailed(until time.Time) NodeOption {
+	return nodeOption{
+		fn: func(n *node) {
+			n.nextSampleInfoHashesTime = until
+		},
+	}
+}
+
 func NodeBep51Support(supported bool) NodeOption {
 	return nodeOption{
 		fn: func(n *node) {

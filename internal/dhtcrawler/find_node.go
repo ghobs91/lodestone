@@ -32,6 +32,7 @@ func (c *crawler) runFindNode(ctx context.Context) {
 	_ = c.nodesForFindNode.Run(ctx, func(p ktable.Node) {
 		res, err := c.client.FindNode(ctx, p.Addr(), c.soughtNodeID.Get())
 		if err != nil {
+			c.kTable.FailAddr(p.Addr().Addr())
 			c.kTable.BatchCommand(ktable.DropNode{
 				ID:     p.ID(),
 				Reason: fmt.Errorf("find_node failed: %w", err),

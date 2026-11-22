@@ -50,9 +50,19 @@ func (c FilterKnownAddrs) execReturn(t *table) []netip.Addr {
 	var unknown []netip.Addr
 
 	for _, addr := range c.Addrs {
-		if _, ok := t.addrs.addrs[addr.String()]; !ok {
-			unknown = append(unknown, addr)
+		if _, ok := t.addrs.addrs[addr.String()]; ok {
+			continue
 		}
+
+		// Recently-failed addresses are not in the routing table either, but
+		// re-feeding them is how the query budget gets consumed by dead peers.
+		if t.failedAddrs != nil {
+			if _, failed := t.failedAddrs.Get(addr); failed {
+				continue
+			}
+		}
+
+		unknown = append(unknown, addr)
 	}
 
 	return unknown
