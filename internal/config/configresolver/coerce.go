@@ -30,6 +30,10 @@ func coerceStringValue(stringValue string, valueType reflect.Type) (interface{},
 		return strconv.Atoi(stringValue)
 	case reflect.Uint, reflect.Uint16, reflect.Uint64:
 		return strconv.ParseUint(stringValue, 10, 64)
+	case reflect.Float32, reflect.Float64:
+		// rate.Limit is a float64, so the DHT global query / metainfo request
+		// rate caps were previously impossible to set from the environment.
+		return strconv.ParseFloat(stringValue, 64)
 	case reflect.Slice:
 		strValues := strings.Split(stringValue, ",")
 		values := make([]interface{}, len(strValues))
